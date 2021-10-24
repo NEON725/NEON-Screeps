@@ -15,8 +15,8 @@ const roleIndex = new RoleIndex();
 
 function generateRandomName():string
 {
-	const i =Math.floor(Math.random() * names.length);
-	const retval= names[i];
+	const i = Math.floor(Math.random() * names.length);
+	const retval = names[i];
 	return retval;
 }
 
@@ -37,8 +37,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
 		const role = roleIndex.getRole(memory.role);
-		const temp=memory as any;
-		temp.test=names;
 		role.run(creep);
 	}
 	const spawn = Game.spawns.Spawn1;
