@@ -8,7 +8,7 @@ export default class RoleIndex
 	{
 		this.roleData =
 		{
-			worker:new WorkerRole(),
+			worker: new WorkerRole(),
 		};
 	}
 

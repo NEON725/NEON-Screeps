@@ -112,6 +112,7 @@ module.exports = {
 		"spaced-comment": "error",
 		"indent": ["error", "tab"],
 		"linebreak-style": ["error", "unix"],
+		"key-spacing": "error",
 		"space-infix-ops": "off",
 		"quotes": "off",
 		"brace-style": "off",
