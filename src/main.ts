@@ -1,4 +1,4 @@
-import { ErrorMapper } from "utils/ErrorMapper";
+import {ErrorMapper} from "utils/ErrorMapper";
 import RoleIndex from "roles/RoleIndex";
 import CreepRole from "types/CreepRole";
 import names from "utils/names.json";

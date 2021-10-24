@@ -70,6 +70,7 @@ module.exports = {
 		"@typescript-eslint/quotes": ["error", "double"],
 		"@typescript-eslint/space-before-function-paren": ["error", "never"],
 		"@typescript-eslint/space-infix-ops": "error",
+		"@typescript-eslint/object-curly-spacing": ["error"],
 		"arrow-parens": ["off", "as-needed"],
 		"space-in-parens": ["error", "never"],
 		camelcase: "error",
@@ -120,5 +121,6 @@ module.exports = {
 		"keyword-spacing": "off",
 		"lines-between-class-members": "off",
 		"space-before-function-paren": "off",
+		"object-curly-spacing": "off",
 	}
 };
