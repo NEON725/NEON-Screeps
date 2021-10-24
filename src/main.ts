@@ -7,29 +7,29 @@ declare global
 {
 	interface CreepMemory
 	{
-		role:string;
+		role: string;
 	}
 }
 
 const roleIndex = new RoleIndex();
 
-function generateRandomName():string
+function generateRandomName(): string
 {
 	const i = Math.floor(Math.random() * names.length);
 	const retval = names[i];
 	return retval;
 }
 
-function spawnCreep(spawn:StructureSpawn, role:CreepRole)
+function spawnCreep(spawn: StructureSpawn, role: CreepRole)
 {
-	spawn.spawnCreep([WORK,CARRY,MOVE], generateRandomName(), {memory: role.initMemory()})
+	spawn.spawnCreep([WORK, CARRY, MOVE], generateRandomName(), {memory: role.initMemory()})
 }
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
-	for (const name in Memory.creeps)
+	for(const name in Memory.creeps)
 	{
-		if (!(name in Game.creeps))
+		if(!(name in Game.creeps))
 		{
 			delete Memory.creeps[name];
 			continue;
@@ -42,6 +42,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	const spawn = Game.spawns.Spawn1;
 	if(spawn.store.energy >= 200)
 	{
-		spawnCreep(spawn,roleIndex.getRole("worker"));
+		spawnCreep(spawn, roleIndex.getRole("worker"));
 	}
 });

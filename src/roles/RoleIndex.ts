@@ -3,7 +3,7 @@ import WorkerRole from "roles/Worker";
 
 export default class RoleIndex
 {
-	private roleData:any;
+	private roleData: any;
 	constructor()
 	{
 		this.roleData =
@@ -11,7 +11,8 @@ export default class RoleIndex
 			worker:new WorkerRole(),
 		};
 	}
-	getRole(role:string): CreepRole
+
+	getRole(role: string): CreepRole
 	{
 		return this.roleData[role] as CreepRole;
 	}

@@ -3,7 +3,7 @@ import CreepRole from "types/CreepRole";
 
 export class WorkerMemory extends CreepMemoryBase
 {
-	harvesting=true;
+	harvesting = true;
 }
 
 export default class WorkerRole extends CreepRole
@@ -12,11 +12,13 @@ export default class WorkerRole extends CreepRole
 	{
 		super("worker");
 	}
-	initMemory():CreepMemory
+
+	initMemory(): CreepMemory
 	{
 		return new WorkerMemory(this.roleName);
 	}
-	run(creep: Creep):void
+
+	run(creep: Creep): void
 	{
 		super.run(creep);
 		const memory = creep.memory as WorkerMemory;
