@@ -1,32 +1,61 @@
 import {ErrorMapper} from "utils/ErrorMapper";
 import RoleIndex from "roles/RoleIndex";
-import CreepRole from "types/CreepRole";
-import names from "utils/names.json";
+import FillSpawnerJob from "jobs/FillSpawnerJob";
+import JobQueue from "jobs/JobQueue";
+import CreepRosterMeta from "types/CreepRosterMeta";
+import JobBase from "jobs/JobBase";
+import {spawnCreep} from "utils/misc";
 
+type BasicVoidFuncType = ()=> void;
 declare global
 {
 	interface CreepMemory
 	{
 		role: string;
+		assignedJob: Id<JobBase> | null;
+	}
+	namespace NodeJS
+	{
+		interface Global
+		{
+			jobQueue: JobQueue;
+			killAllCreeps: BasicVoidFuncType;
+		}
+	}
+}
+
+global.killAllCreeps = function()
+{
+	for(const name in Game.creeps)
+	{
+		Game.creeps[name].suicide();
+		delete Game.creeps[name];
 	}
 }
 
 const roleIndex = new RoleIndex();
+let creepRosterMeta = new CreepRosterMeta();
 
-function generateRandomName(): string
+for(const name in Memory.creeps)
 {
-	const i = Math.floor(Math.random() * names.length);
-	const retval = names[i];
-	return retval;
+	const creep = Game.creeps[name];
+	const memory = creep?.memory;
+	if(memory?.assignedJob)
+	{
+		memory.assignedJob = null;
+	}
 }
 
-function spawnCreep(spawn: StructureSpawn, role: CreepRole)
-{
-	spawn.spawnCreep([WORK, CARRY, MOVE], generateRandomName(), {memory: role.initMemory()})
-}
+const jobQueue = new JobQueue();
+global.jobQueue = jobQueue;
+
+console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
+	const nextCreepRosterMeta = new CreepRosterMeta();
+	jobQueue.run();
+	let nextFillableJob = jobQueue.getNextFillableJob();
 	for(const name in Memory.creeps)
 	{
 		if(!(name in Game.creeps))
@@ -37,11 +66,37 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
 		const role = roleIndex.getRole(memory.role);
+		if(!memory.assignedJob && nextFillableJob != null && role.canAcceptJob(creep, nextFillableJob))
+		{
+			nextFillableJob.assignJob(creep);
+			nextFillableJob = null;
+		}
 		role.run(creep);
+		nextCreepRosterMeta.total++;
 	}
-	const spawn = Game.spawns.Spawn1;
-	if(spawn.store.energy >= 200)
+	creepRosterMeta = nextCreepRosterMeta;
+	for(const name in Game.structures)
 	{
-		spawnCreep(spawn, roleIndex.getRole("worker"));
+		const structure = Game.structures[name];
+		switch(structure.structureType)
+		{
+			case STRUCTURE_SPAWN:
+			{
+				const spawn = structure as StructureSpawn;
+				if(FillSpawnerJob.isJobNeeded(spawn))
+				{
+					const fillJob = new FillSpawnerJob(spawn);
+					jobQueue.addJob(fillJob);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+	const mainSpawn = Game.spawns.Spawn1;
+	if(mainSpawn.store.energy >= 200 && creepRosterMeta.total < 8)
+	{
+		spawnCreep(mainSpawn, roleIndex.getRole("worker"));
 	}
 });

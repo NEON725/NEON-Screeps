@@ -1,3 +1,5 @@
+import JobBase from "jobs/JobBase";
+
 export default abstract class CreepRole
 {
 	readonly roleName: string;
@@ -11,4 +13,5 @@ export default abstract class CreepRole
 	{
 
 	}
+	abstract canAcceptJob(creep: Creep, job: JobBase): boolean;
 }
