@@ -44,6 +44,7 @@ module.exports = {
 		"@typescript-eslint/explicit-module-boundary-types": "error",
 		"@typescript-eslint/no-empty-function": "warn",
 		"@typescript-eslint/no-unsafe-member-access": "off",
+		"@typescript-eslint/no-unsafe-assignment": "off",
     "space-in-parens": ["error", "never"],
     "@typescript-eslint/unified-signatures": "error",
     "arrow-parens": ["off", "as-needed"],
