@@ -22,7 +22,6 @@ function generateRandomName():string
 
 function spawnCreep(spawn:StructureSpawn, role:CreepRole)
 {
-	console.log("SPAWN");
 	spawn.spawnCreep([WORK,CARRY,MOVE], generateRandomName(), {memory: role.initMemory()})
 }
 
