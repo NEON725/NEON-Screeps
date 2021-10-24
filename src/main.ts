@@ -33,6 +33,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		if (!(name in Game.creeps))
 		{
 			delete Memory.creeps[name];
+			continue;
 		}
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
