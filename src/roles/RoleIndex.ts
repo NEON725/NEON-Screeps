@@ -1,5 +1,5 @@
 import CreepRole from "types/CreepRole";
-import WorkerRole from "roles/worker";
+import WorkerRole from "roles/Worker";
 
 export default class RoleIndex
 {
