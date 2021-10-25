@@ -51,3 +51,21 @@ export function isJobAssignable(ent: RoomObject)
 	const a = ent as any;
 	return ("name" in a) && ("memory" in a);
 }
+
+export function moveTo(
+	self: Creep,
+	target: RoomPosition | {pos: RoomPosition},
+	extraOpts?: any
+): CreepMoveReturnCode | -2 | -5 | -7
+{
+	if(self.fatigue > 0){return OK;}
+	const pos = ("pos" in target) ? target.pos : target;
+	const opts: any = {reusePath: 20, noPathFinding: true, ...(extraOpts || {})};
+	let retVal = self.moveTo(pos, opts);
+	if(retVal === ERR_NOT_FOUND || retVal === ERR_NO_PATH)
+	{
+		opts.noPathFinding = false;
+		retVal = self.moveTo(pos, opts);
+	}
+	return retVal;
+}

@@ -3,7 +3,7 @@ import JobBase from "jobs/JobBase";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
 import CreepRole from "roles/CreepRole";
-import {randomDirection} from "utils/misc";
+import {moveTo, randomDirection} from "utils/misc";
 
 export class WorkerMemory extends CreepMemoryBase
 {
@@ -40,7 +40,7 @@ export default class WorkerRole extends CreepRole
 				const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
 				if(source !== null && creep.harvest(source) === ERR_NOT_IN_RANGE)
 				{
-					creep.moveTo(source);
+					moveTo(creep, source);
 				}
 			}
 		}
@@ -76,7 +76,7 @@ export default class WorkerRole extends CreepRole
 					{
 						case ERR_NOT_IN_RANGE:
 						{
-							creep.moveTo(structure);
+							moveTo(creep, structure, {visualizePathStyle: {}});
 							break;
 						}
 						case ERR_FULL:
