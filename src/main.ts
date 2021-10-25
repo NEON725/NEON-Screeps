@@ -108,10 +108,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	}
 
 	const spawnJob = creepRosterMeta.generateSpawnJob(1);
-	if(spawnJob)
-	{
-		jobQueue.addJob(spawnJob);
-	}
+	if(spawnJob){jobQueue.addJob(spawnJob);}
 
 	for(const name in Game.structures)
 	{
