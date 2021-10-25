@@ -2,6 +2,7 @@ import JobBase from "./JobBase"
 
 export default class JobQueue
 {
+	nextJobIndex = 0;
 	jobs: JobBase[] = [];
 
 	addJob(job: JobBase): boolean
@@ -20,7 +21,19 @@ export default class JobQueue
 
 	getNextFillableJob(): JobBase | null
 	{
-		return this.jobs.reduce((prev, next) => (!prev && next.assignedCreeps.length < next.maxAssigned) ? next : prev, null as JobBase | null);
+		if(this.jobs.length === 0){return null;}
+		for(let attempts = 0;attempts < this.jobs.length;attempts++)
+		{
+			this.nextJobIndex++;
+			if(this.nextJobIndex >= this.jobs.length){this.nextJobIndex = 0;}
+			const job = this.jobs[this.nextJobIndex];
+			if(job.assignedCreeps.length < job.maxAssigned)
+			{
+				this.nextJobIndex = 0;
+				return job;
+			}
+		}
+		return null;
 	}
 
 	flushJobs(): void
