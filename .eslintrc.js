@@ -55,7 +55,7 @@ module.exports = {
 		"@typescript-eslint/comma-dangle": ["error", "always-multiline"],
 		"@typescript-eslint/comma-spacing": ["error"],
 		"@typescript-eslint/func-call-spacing": ["error"],
-		"@typescript-eslint/indent": ["warn", "tab"],
+		"@typescript-eslint/indent": ["error", "tab"],
 		"@typescript-eslint/keyword-spacing": ["error",
 		{
 			before: true,
@@ -75,6 +75,7 @@ module.exports = {
 		"@typescript-eslint/space-before-function-paren": ["error", "never"],
 		"@typescript-eslint/space-infix-ops": "error",
 		"@typescript-eslint/object-curly-spacing": ["error"],
+		"@typescript-eslint/no-shadow": "error",
 		"arrow-parens": ["off", "as-needed"],
 		"space-in-parens": ["error", "never"],
 		camelcase: "error",
@@ -97,12 +98,7 @@ module.exports = {
 		"no-invalid-this": "off",
 		"no-multiple-empty-lines": "off",
 		"no-new-wrappers": "error",
-		"no-shadow": [
-			"error",
-			{
-				hoist: "all"
-			}
-		],
+		"no-shadow": "off",
 		"no-throw-literal": "error",
 		"no-trailing-spaces": "error",
 		"no-undef-init": "error",
@@ -127,5 +123,6 @@ module.exports = {
 		"lines-between-class-members": "off",
 		"space-before-function-paren": "off",
 		"object-curly-spacing": "off",
+		"semi-spacing": "error",
 	}
 };
