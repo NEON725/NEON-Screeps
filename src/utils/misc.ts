@@ -1,4 +1,4 @@
-import CreepRole from "types/CreepRole";
+import CreepRole from "roles/CreepRole";
 import names from "utils/names.json";
 
 export function deepEquals(a: any, b: any)

@@ -2,7 +2,7 @@ import FillSpawnerJob from "jobs/FillSpawnerJob";
 import JobBase from "jobs/JobBase";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
-import CreepRole from "types/CreepRole";
+import CreepRole from "roles/CreepRole";
 import {randomDirection} from "utils/misc";
 
 export class WorkerMemory extends CreepMemoryBase

@@ -1,6 +1,6 @@
 import JobBase from "jobs/JobBase";
 import CreepMemoryBase from "types/CreepMemoryBase";
-import CreepRole from "types/CreepRole";
+import CreepRole from "roles/CreepRole";
 
 export default class StructureControllerRole extends CreepRole
 {

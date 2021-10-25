@@ -1,4 +1,4 @@
-import CreepRole from "types/CreepRole";
+import CreepRole from "roles/CreepRole";
 import WorkerRole from "roles/WorkerRole";
 import StructureSpawnRole from "./StructureSpawnRole";
 import StructureControllerRole from "./StructureControllerRole";
