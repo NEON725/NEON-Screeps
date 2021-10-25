@@ -24,17 +24,23 @@ export default class JobQueue
 	getNextFillableJob(): JobBase | null
 	{
 		if(this.jobs.length === 0){return null;}
-		for(let attempts = 0;attempts < this.jobs.length;attempts++)
+		let retVal: JobBase | null = null;
+		this.nextJobIndex++;
+		if(this.nextJobIndex >= this.jobs.length){this.nextJobIndex = 0;}
+		for(let i = 0; i < this.jobs.length; i++)
 		{
-			this.nextJobIndex++;
-			if(this.nextJobIndex >= this.jobs.length){this.nextJobIndex = 0;}
-			const job = this.jobs[this.nextJobIndex];
-			if(job.assigned.length < job.maxAssigned)
+			const index = (this.nextJobIndex + i) % this.jobs.length;
+			const job = this.jobs[index];
+			if
+			(
+				job.assigned.length < job.maxAssigned
+				&& (retVal === null || retVal.priority < job.priority)
+			)
 			{
-				return job;
+				retVal = job;
 			}
 		}
-		return null;
+		return retVal;
 	}
 
 	flushJobs(): void

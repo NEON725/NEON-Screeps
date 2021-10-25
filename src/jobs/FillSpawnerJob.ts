@@ -1,11 +1,17 @@
 import JobBase from "./JobBase";
+import JobPriority from "./JobPriority";
 
 export default class FillSpawnerJob extends JobBase
 {
 	spawnId: Id<StructureSpawn>;
 	constructor(spawn: StructureSpawn)
 	{
-		super("FillSpawner", {maxAssigned: 8, atom: spawn.id});
+		super("FillSpawner",
+			{
+				maxAssigned: 8,
+				atom: spawn.id,
+				priority: JobPriority.DANGER,
+			});
 		this.spawnId = spawn.id;
 	}
 

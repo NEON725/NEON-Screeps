@@ -1,24 +1,29 @@
 import {deepEquals, generateID} from "utils/misc";
+import JobPriority from "./JobPriority";
 
 export default abstract class JobBase
 {
 	id: Id<JobBase>;
-	maxAssigned = 1;
-	atom: any = null;
+	maxAssigned;
+	atom: any;
+	priority: JobPriority;
 	assigned: JobAssignable[] = [];
 	constructor(public jobName: string,
 		{
 			maxAssigned = 1,
 			atom = null,
+			priority = JobPriority.TIMESINK,
 		}:
 		{
 			maxAssigned?: number,
 			atom?: any,
+			priority?: JobPriority
 		})
 	{
 		this.id = generateID();
 		this.maxAssigned = maxAssigned;
 		this.atom = atom;
+		this.priority = priority;
 	}
 
 	atomEquals(other: JobBase): boolean

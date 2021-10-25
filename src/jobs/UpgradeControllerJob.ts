@@ -1,17 +1,24 @@
 import JobBase from "./JobBase";
+import JobPriority from "./JobPriority";
 
 export default class UpgradeControllerJob extends JobBase
 {
 	controllerId: Id<StructureController>;
 	constructor(controller: StructureController)
 	{
-		super("UpgradeController", {maxAssigned: 12, atom: controller.id});
+		super("UpgradeController",
+			{
+				maxAssigned: 12,
+				atom: controller.id,
+				priority: JobPriority.EXPAND,
+			});
 		this.controllerId = controller.id;
 	}
 
 	run(): boolean
 	{
-		const controller = Game.getObjectById(this.controllerId);
+		const controller = Game.getObjectById(this.controllerId) as StructureController;
+		this.priority = controller.ticksToDowngrade <= 3000 ? JobPriority.DANGER : JobPriority.EXPAND;
 		return UpgradeControllerJob.isJobNeeded(controller);
 	}
 
