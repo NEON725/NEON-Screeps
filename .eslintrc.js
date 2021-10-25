@@ -124,5 +124,6 @@ module.exports = {
 		"space-before-function-paren": "off",
 		"object-curly-spacing": "off",
 		"semi-spacing": "error",
+		"no-constant-condition": "off",
 	}
 };
