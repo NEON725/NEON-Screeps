@@ -66,6 +66,7 @@ module.exports = {
 				as:{after: true,},
 				async:{after: true,},
 				case:{after: true,},
+				return:{after: true,},
 			},
 		}],
 		"@typescript-eslint/lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],

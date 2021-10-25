@@ -22,12 +22,12 @@ export function deepEquals(a: any, b: any)
 
 export function randomDirection(): DirectionConstant
 {
-	return(Math.floor(Math.random() * 8) + 1) as DirectionConstant;
+	return (Math.floor(Math.random() * 8) + 1) as DirectionConstant;
 }
 
 export function generateID<T>(): Id<T>
 {
-	return("xxxx-xxxx-xxx-xxxx".replace(/[x]/g, function(c)
+	return ("xxxx-xxxx-xxx-xxxx".replace(/[x]/g, function(c)
 	{
 		/* eslint-disable no-bitwise */
 		const r = Math.random() * 16 | 0; const v = c === "x" ? r : (r & 0x3 | 0x8);
