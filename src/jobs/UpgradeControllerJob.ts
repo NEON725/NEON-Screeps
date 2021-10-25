@@ -18,7 +18,12 @@ export default class UpgradeControllerJob extends JobBase
 	run(): boolean
 	{
 		const controller = Game.getObjectById(this.controllerId) as StructureController;
-		this.priority = controller.ticksToDowngrade <= 3000 ? JobPriority.DANGER : JobPriority.EXPAND;
+		if(controller.ticksToDowngrade <= 3000)
+		{
+			console.log(`Controller ${controller.room.name} is decaying!`);
+			this.priority = JobPriority.DANGER;
+		}
+		else{this.priority = JobPriority.EXPAND;}
 		return UpgradeControllerJob.isJobNeeded(controller);
 	}
 
