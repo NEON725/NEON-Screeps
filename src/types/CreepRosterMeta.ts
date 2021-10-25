@@ -1,4 +1,5 @@
 import JobBase from "jobs/JobBase";
+import JobPriority from "jobs/JobPriority";
 import SpawnCreepJob from "jobs/SpawnCreepJob";
 
 const WORKER_PERCENTAGE = 0.4;
@@ -24,11 +25,11 @@ export default class CreepRosterMeta
 	{
 		if(this.getTotal("Worker") < Math.ceil(this.total * WORKER_PERCENTAGE))
 		{
-			return new SpawnCreepJob("Worker", "minimum-worker-percent");
+			return new SpawnCreepJob("Worker", "minimum-worker-percent", JobPriority.EXPAND);
 		}
 		if(this.total < POPULATION_MAX)
 		{
-			return new SpawnCreepJob("Worker", "idle-spawn");
+			return new SpawnCreepJob("Worker", "idle-spawn", JobPriority.TIMESINK);
 		}
 		return null;
 	}
