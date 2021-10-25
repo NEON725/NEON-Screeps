@@ -80,13 +80,12 @@ const jobQueue = new JobQueue();
 global.jobQueue = jobQueue;
 const roleIndex = new RoleIndex();
 global.roleIndex = roleIndex;
-let creepRosterMeta = new CreepRosterMeta();
 
 console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
-	const nextCreepRosterMeta = new CreepRosterMeta();
+	const creepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
 	let nextFillableJob = jobQueue.getNextFillableJob();
 	for(const name in Memory.creeps)
@@ -105,9 +104,14 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const role = roleIndex.getRole(memory.role);
 		if(jobQueue.attemptFillJob(creep, nextFillableJob)){nextFillableJob = null;}
 		role.run(creep);
-		nextCreepRosterMeta.tallyCreep(creep);
+		creepRosterMeta.tallyCreep(creep);
 	}
-	creepRosterMeta = nextCreepRosterMeta;
+
+	const spawnJob = creepRosterMeta.generateSpawnJob(1);
+	if(spawnJob)
+	{
+		jobQueue.addJob(spawnJob);
+	}
 
 	for(const name in Game.structures)
 	{
@@ -144,10 +148,5 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			default:
 				break;
 		}
-	}
-	const mainSpawn = Game.spawns.Spawn1;
-	if(mainSpawn.store.energy >= 200 && creepRosterMeta.total < 30)
-	{
-		jobQueue.addJob(new SpawnCreepJob("Worker", "excess"));
 	}
 });
