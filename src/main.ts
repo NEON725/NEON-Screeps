@@ -87,7 +87,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 {
 	const creepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
-	let nextFillableJob = jobQueue.getNextFillableJob();
+	const fillableJobs = jobQueue.fillableJobs;
 	for(const name in Memory.creeps)
 	{
 		if(!(name in Game.creeps))
@@ -102,7 +102,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
 		const role = roleIndex.getRole(memory.role);
-		if(jobQueue.attemptFillJob(creep, nextFillableJob)){nextFillableJob = null;}
+		fillableJobs.filter((nextJob)=>!jobQueue.attemptFillJob(creep, nextJob));
 		role.run(creep);
 		creepRosterMeta.tallyCreep(creep);
 	}
@@ -117,7 +117,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		{
 			const assignableStructure = (structure as unknown) as JobAssignable;
 			const role = roleIndex.getRole(assignableStructure);
-			if(jobQueue.attemptFillJob(assignableStructure, nextFillableJob)){nextFillableJob = null;}
+			fillableJobs.filter((nextJob)=>!jobQueue.attemptFillJob(assignableStructure, nextJob));
 			role.run(undefined, structure);
 		}
 		switch(structure.structureType)

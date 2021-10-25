@@ -1,10 +1,12 @@
 import RoleIndex from "roles/RoleIndex";
 import JobBase from "./JobBase"
+import JobPriority, {getJobPrioritiesSorted} from "./JobPriority";
 
 export default class JobQueue
 {
 	nextJobIndex = 0;
 	jobs: JobBase[] = [];
+	fillableJobs: JobBase[] = [];
 
 	addJob(job: JobBase): boolean
 	{
@@ -21,28 +23,6 @@ export default class JobQueue
 		return this.jobs.reduce((prev, next) => next.id === id ? next : prev, null as JobBase | null);
 	}
 
-	getNextFillableJob(): JobBase | null
-	{
-		if(this.jobs.length === 0){return null;}
-		let retVal: JobBase | null = null;
-		this.nextJobIndex++;
-		if(this.nextJobIndex >= this.jobs.length){this.nextJobIndex = 0;}
-		for(let i = 0; i < this.jobs.length; i++)
-		{
-			const index = (this.nextJobIndex + i) % this.jobs.length;
-			const job = this.jobs[index];
-			if
-			(
-				job.assigned.length < job.maxAssigned
-				&& (retVal === null || retVal.priority < job.priority)
-			)
-			{
-				retVal = job;
-			}
-		}
-		return retVal;
-	}
-
 	flushJobs(): void
 	{
 		/* eslint-disable-next-line @typescript-eslint/no-for-in-array */
@@ -55,6 +35,9 @@ export default class JobQueue
 
 	run(): void
 	{
+		const prioritiesInOrder = getJobPrioritiesSorted();
+		const fillableJobsByPriority: JobBase[][] = [];
+		for(const prio of prioritiesInOrder){fillableJobsByPriority[prio] = [];}
 		this.jobs = this.jobs.filter(job =>
 		{
 			const keep = job.run();
@@ -63,18 +46,22 @@ export default class JobQueue
 				job.unassignAll();
 				console.log(`DROP JOB: ${job.toString()}`);
 			}
+			else if(job.assigned.length < job.maxAssigned)
+			{
+				fillableJobsByPriority[job.priority].push(job);
+			}
 			return keep;
 		});
+		this.fillableJobs = [];
+		for(const prio of prioritiesInOrder)
+		{
+			this.fillableJobs.push(...fillableJobsByPriority[prio]);
+		}
 	}
 
 	attemptFillJob(ent: JobAssignable, job: JobBase | null): boolean
 	{
 		const memory = ent.memory;
-		if(memory === undefined)
-		{
-			console.log(ent);
-			console.log(ent.name);
-		}
 		const role = global.roleIndex.getRole(ent);
 		if(job != null && !memory.assignedJob && role.canAcceptJob(ent, job))
 		{
