@@ -2,6 +2,7 @@ import CreepRole from "roles/CreepRole";
 import WorkerRole from "roles/WorkerRole";
 import StructureSpawnRole from "./StructureSpawnRole";
 import StructureControllerRole from "./StructureControllerRole";
+import MuleRole from "./MuleRole";
 
 export default class RoleIndex
 {
@@ -11,6 +12,7 @@ export default class RoleIndex
 		this.roleData =
 		{
 			Worker: new WorkerRole(),
+			Mule: new MuleRole(),
 			StructureSpawn: new StructureSpawnRole(),
 			StructureController: new StructureControllerRole(),
 		};

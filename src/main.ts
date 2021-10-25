@@ -8,6 +8,7 @@ import {isJobAssignable} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import SpawnCreepJob from "jobs/SpawnCreepJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
+import SendGiftJob from "jobs/SendGiftJob";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -86,7 +87,7 @@ console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
-	const defaultRoom = Game.rooms[Object.keys(Game.rooms)[0]];
+	const defaultRoom = Game.spawns.Spawn1.room;
 
 	const creepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
@@ -156,4 +157,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const constructJob = new ConstructBuildingJob(site);
 		jobQueue.addJob(constructJob);
 	}
+
+	const giftJob = new SendGiftJob("W8N2");
+	jobQueue.addJob(giftJob);
 });

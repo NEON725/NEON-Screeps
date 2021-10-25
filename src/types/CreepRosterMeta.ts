@@ -23,6 +23,14 @@ export default class CreepRosterMeta
 
 	generateSpawnJob(budget: number, spawners: number): JobBase | null
 	{
+		if(this.getTotal("Worker") < 1)
+		{
+			return new SpawnCreepJob("Worker", "minimum-worker-amount", JobPriority.DANGER, budget);
+		}
+		if(this.getTotal("Mule") < 1)
+		{
+			return new SpawnCreepJob("Mule", "minimum-mule-amount", JobPriority.DANGER, budget);
+		}
 		if(this.getTotal("Worker") < Math.ceil(this.total * WORKER_PERCENTAGE))
 		{
 			return new SpawnCreepJob("Worker", "minimum-worker-percent", JobPriority.EXPAND, budget);
