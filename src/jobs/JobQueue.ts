@@ -31,7 +31,6 @@ export default class JobQueue
 			const job = this.jobs[this.nextJobIndex];
 			if(job.assigned.length < job.maxAssigned)
 			{
-				this.nextJobIndex = 0;
 				return job;
 			}
 		}
