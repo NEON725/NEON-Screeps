@@ -2,6 +2,7 @@ import JobBase from "jobs/JobBase";
 import SpawnCreepJob from "jobs/SpawnCreepJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
 import CreepRole from "roles/CreepRole";
+import {generateRandomName} from "utils/misc";
 
 export default class StructureSpawnRole extends CreepRole
 {
@@ -19,7 +20,7 @@ export default class StructureSpawnRole extends CreepRole
 	{
 		const spawn = creep as unknown as StructureSpawn;
 		const spawnJob = job as SpawnCreepJob;
-		return spawn.spawnCreep(spawnJob.body, spawnJob.name, {dryRun: true}) === OK;
+		return spawn.spawnCreep(spawnJob.body, "dryrun", {dryRun: true}) === OK;
 	}
 
 	run(creep?: Creep, structure?: Structure): void
@@ -28,7 +29,7 @@ export default class StructureSpawnRole extends CreepRole
 		const spawnJob = global.jobQueue.getJobById(spawn.memory.assignedJob) as SpawnCreepJob;
 		if(spawnJob !== null && !spawn.spawning)
 		{
-			const result = spawn.spawnCreep(spawnJob.body, spawnJob.name, {memory: spawnJob.initialMemory});
+			const result = spawn.spawnCreep(spawnJob.body, generateRandomName(), {memory: spawnJob.initialMemory});
 			if(result === OK){spawnJob.reportCompletedScreep();}
 			else{console.error(`Failed to spawn: ${spawnJob.toString()}`);}
 			spawnJob.unassignJob(spawn);

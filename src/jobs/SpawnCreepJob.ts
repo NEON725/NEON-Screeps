@@ -8,7 +8,6 @@ export default class SpawnCreepJob extends JobBase
 {
 	completed = false;
 	initialMemory: CreepMemoryBase;
-	name = generateRandomName();
 	body: BodyPartConstant[] = [WORK, CARRY, MOVE];
 	constructor(public role: string, atom: string)
 	{

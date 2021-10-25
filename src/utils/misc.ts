@@ -38,9 +38,12 @@ export function generateID<T>(): Id<T>
 
 export function generateRandomName(): string
 {
-	const i = Math.floor(Math.random() * names.length);
-	const retval = names[i];
-	return retval;
+	while(true)
+	{
+		const i = Math.floor(Math.random() * names.length);
+		const retval = names[i];
+		if(!Game.creeps[retval]){return retval;}
+	}
 }
 
 export function isJobAssignable(ent: RoomObject)
