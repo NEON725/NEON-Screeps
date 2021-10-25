@@ -16,7 +16,7 @@ export default class WorkerRole extends CreepRole
 {
 	constructor()
 	{
-		super("worker");
+		super("Worker");
 	}
 
 	initMemory(): CreepMemory
