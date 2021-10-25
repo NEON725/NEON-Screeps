@@ -30,12 +30,14 @@ export default abstract class JobBase
 	{
 		creep.memory.assignedJob = this.id;
 		this.assignedCreeps.push(creep);
+		console.log(`ASSIGN ${this.jobName} TO ${creep.name}`);
 	}
 
 	unassignJob(creep: Creep): void
 	{
 		creep.memory.assignedJob = null;
 		this.assignedCreeps = this.assignedCreeps.filter((remove: Creep) => remove.name !== creep.name);
+		console.log(`UNASSIGN ${this.jobName} FROM ${creep.name}`);
 	}
 
 	unassignAll(): void

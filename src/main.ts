@@ -5,6 +5,7 @@ import JobQueue from "jobs/JobQueue";
 import CreepRosterMeta from "types/CreepRosterMeta";
 import JobBase from "jobs/JobBase";
 import {spawnCreep} from "utils/misc";
+import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -53,6 +54,7 @@ console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
+	console.log(`RUN: ${Game.time}`);
 	const nextCreepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
 	let nextFillableJob = jobQueue.getNextFillableJob();
@@ -66,7 +68,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
 		const role = roleIndex.getRole(memory.role);
-		if(!memory.assignedJob && nextFillableJob != null && role.canAcceptJob(creep, nextFillableJob))
+		if(nextFillableJob != null && !memory.assignedJob && role.canAcceptJob(creep, nextFillableJob))
 		{
 			nextFillableJob.assignJob(creep);
 			nextFillableJob = null;
@@ -90,12 +92,22 @@ export const loop = ErrorMapper.wrapLoop(() =>
 				}
 				break;
 			}
+			case STRUCTURE_CONTROLLER:
+			{
+				const controller = structure as StructureController;
+				if(UpgradeControllerJob.isJobNeeded(controller))
+				{
+					const upgradeJob = new UpgradeControllerJob(controller);
+					jobQueue.addJob(upgradeJob);
+				}
+				break;
+			}
 			default:
 				break;
 		}
 	}
 	const mainSpawn = Game.spawns.Spawn1;
-	if(mainSpawn.store.energy >= 200 && creepRosterMeta.total < 8)
+	if(mainSpawn.store.energy >= 200 && creepRosterMeta.total < 30)
 	{
 		spawnCreep(mainSpawn, roleIndex.getRole("worker"));
 	}

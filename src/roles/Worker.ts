@@ -1,5 +1,6 @@
 import FillSpawnerJob from "jobs/FillSpawnerJob";
 import JobBase from "jobs/JobBase";
+import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
 import CreepRole from "types/CreepRole";
 import {randomDirection} from "utils/misc";
@@ -8,6 +9,8 @@ export class WorkerMemory extends CreepMemoryBase
 {
 	harvesting = true;
 }
+
+const ACCEPTABLE_JOBS = ["FillSpawner", "UpgradeController"];
 
 export default class WorkerRole extends CreepRole
 {
@@ -41,26 +44,42 @@ export default class WorkerRole extends CreepRole
 				}
 			}
 		}
-		else if(carry.energy === 0){memory.harvesting = true;}
+		else if(carry.energy === 0 || (carry.getFreeCapacity(RESOURCE_ENERGY) > 0 && jobId === null)){memory.harvesting = true;}
 		else
 		{
 			const job = global.jobQueue.getJobById(jobId);
 			switch(job?.jobName)
 			{
 				case "FillSpawner":
+				case "UpgradeController":
 				{
-					const fillJob = job as FillSpawnerJob;
-					const spawn = Game.getObjectById(fillJob.spawnId) as StructureSpawn;
-					const result = creep.transfer(spawn, RESOURCE_ENERGY);
+					let structure: Structure;
+					let result;
+					switch(job.jobName)
+					{
+						case "FillSpawner":
+							{
+								const fillJob = job as FillSpawnerJob;
+								structure = Game.getObjectById(fillJob.spawnId) as Structure;
+								result = creep.transfer(structure as StructureSpawn, RESOURCE_ENERGY);
+							}
+							break;
+						case "UpgradeController":
+							{
+								const upgradeJob = job as UpgradeControllerJob;
+								structure = Game.getObjectById(upgradeJob.controllerId) as Structure;
+								result = creep.upgradeController(structure as StructureController);
+							}
+							break;
+					}
 					switch(result)
 					{
 						case ERR_NOT_IN_RANGE:
 						{
-							creep.moveTo(spawn);
+							creep.moveTo(structure);
 							break;
 						}
 						case ERR_FULL:
-						case ERR_INVALID_TARGET:
 						{
 							if(carry.getFreeCapacity() > 0){memory.harvesting = true;}
 							job.unassignJob(creep);
@@ -69,9 +88,9 @@ export default class WorkerRole extends CreepRole
 						case OK:
 							break;
 						default:
-							throw new Error(`Unknown result: ${result}`);
+							throw new Error(`Unknown result: job:${job.jobName} ${result}`);
 					}
-					if(result === ERR_NOT_IN_RANGE){creep.moveTo(spawn);}
+					if(result === ERR_NOT_IN_RANGE){creep.moveTo(structure);}
 					break;
 				}
 				default:
@@ -83,6 +102,6 @@ export default class WorkerRole extends CreepRole
 
 	canAcceptJob(creep: Creep, job: JobBase): boolean
 	{
-		return job.jobName === "FillSpawner" && !(creep.memory as WorkerMemory).harvesting;
+		return !(creep.memory as WorkerMemory).harvesting && (ACCEPTABLE_JOBS.includes(job.jobName));
 	}
 }
