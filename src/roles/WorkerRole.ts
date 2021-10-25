@@ -26,7 +26,6 @@ export default class WorkerRole extends CreepRole
 
 	run(creep: Creep): void
 	{
-		super.run(creep);
 		const memory = creep.memory as WorkerMemory;
 		const jobId = memory.assignedJob;
 		const carry = creep.store;
@@ -103,5 +102,21 @@ export default class WorkerRole extends CreepRole
 	canAcceptJob(creep: JobAssignable, job: JobBase): boolean
 	{
 		return !(creep.memory as WorkerMemory).harvesting && (ACCEPTABLE_JOBS.includes(job.jobName));
+	}
+
+	generateBody(energyBudget: number): BodyPartConstant[]
+	{
+		let remainingBudget = energyBudget;
+		const retVal: BodyPartConstant[] = [];
+		while(true)
+		{
+			for(const part of[WORK, MOVE, CARRY])
+			{
+				const cost = BODYPART_COST[part];
+				if(cost > remainingBudget){return retVal;}
+				remainingBudget -= cost;
+				retVal.push(part);
+			}
+		}
 	}
 }

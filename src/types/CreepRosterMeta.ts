@@ -21,15 +21,15 @@ export default class CreepRosterMeta
 		return this.totalsByName.get(role) || 0;
 	}
 
-	generateSpawnJob(spawners: number): JobBase | null
+	generateSpawnJob(budget: number, spawners: number): JobBase | null
 	{
 		if(this.getTotal("Worker") < Math.ceil(this.total * WORKER_PERCENTAGE))
 		{
-			return new SpawnCreepJob("Worker", "minimum-worker-percent", JobPriority.EXPAND);
+			return new SpawnCreepJob("Worker", "minimum-worker-percent", JobPriority.EXPAND, budget);
 		}
 		if(this.total < POPULATION_MAX)
 		{
-			return new SpawnCreepJob("Worker", "idle-spawn", JobPriority.TIMESINK);
+			return new SpawnCreepJob("Worker", "idle-spawn", JobPriority.TIMESINK, budget);
 		}
 		return null;
 	}

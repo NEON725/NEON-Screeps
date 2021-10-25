@@ -9,9 +9,7 @@ export default abstract class CreepRole
 	}
 
 	abstract initMemory(): CreepMemory;
-	run(creep?: Creep, structure?: Structure): void
-	{
-
-	}
+	abstract run(creep?: Creep, structure?: Structure): void;
 	abstract canAcceptJob(creep: JobAssignable, job: JobBase): boolean;
+	abstract generateBody(energyBudget: number): BodyPartConstant[];
 }

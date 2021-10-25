@@ -85,6 +85,8 @@ console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
+	const defaultRoom = Game.rooms[Object.keys(Game.rooms)[0]];
+
 	const creepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
 	const fillableJobs = jobQueue.fillableJobs;
@@ -107,7 +109,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		creepRosterMeta.tallyCreep(creep);
 	}
 
-	const spawnJob = creepRosterMeta.generateSpawnJob(1);
+	const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
 	if(spawnJob){jobQueue.addJob(spawnJob);}
 
 	for(const name in Game.structures)

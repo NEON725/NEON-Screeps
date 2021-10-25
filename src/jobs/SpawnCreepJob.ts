@@ -8,11 +8,13 @@ export default class SpawnCreepJob extends JobBase
 {
 	completed = false;
 	initialMemory: CreepMemoryBase;
-	body: BodyPartConstant[] = [WORK, CARRY, MOVE];
-	constructor(public role: string, atom: string, priority: JobPriority)
+	body: BodyPartConstant[];
+	constructor(public roleName: string, atom: string, priority: JobPriority, budget: number)
 	{
-		super(`SpawnCreep: ${role}`, {atom, priority});
-		this.initialMemory = global.roleIndex.getRole(role).initMemory();
+		super(`SpawnCreep: ${roleName}`, {atom, priority});
+		const role = global.roleIndex.getRole(roleName);
+		this.initialMemory = role.initMemory();
+		this.body = role.generateBody(budget);
 	}
 
 	run(): boolean

@@ -19,4 +19,12 @@ export default class StructureControllerRole extends CreepRole
 		return false;
 	}
 
+	run(creep?: Creep, structure?: Structure): void
+	{
+	}
+
+	generateBody(unused: number): BodyPartConstant[]
+	{
+		throw new Error("Cannot generate body specifications for structure.");
+	}
 }

@@ -35,4 +35,9 @@ export default class StructureSpawnRole extends CreepRole
 			spawnJob.unassignJob(spawn);
 		}
 	}
+
+	generateBody(unused: number): BodyPartConstant[]
+	{
+		throw new Error("Cannot generate body specifications for structure.");
+	}
 }
