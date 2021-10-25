@@ -43,7 +43,8 @@ export function generateRandomName(): string
 	return retval;
 }
 
-export function spawnCreep(spawn: StructureSpawn, role: CreepRole)
+export function isJobAssignable(ent: RoomObject)
 {
-	spawn.spawnCreep([WORK, CARRY, MOVE], generateRandomName(), {memory: role.initMemory()})
+	const a = ent as any;
+	return ("name" in a) && ("memory" in a);
 }

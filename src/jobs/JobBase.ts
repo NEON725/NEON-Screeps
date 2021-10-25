@@ -5,7 +5,7 @@ export default abstract class JobBase
 	id: Id<JobBase>;
 	maxAssigned = 1;
 	atom: any = null;
-	assignedCreeps: Creep[] = [];
+	assigned: JobAssignable[] = [];
 	constructor(public jobName: string,
 		{
 			maxAssigned = 1,
@@ -23,30 +23,36 @@ export default abstract class JobBase
 
 	atomEquals(other: JobBase): boolean
 	{
-		return this.atom === other.atom || deepEquals(this.atom, other.atom);
+		return !!(this.atom && other.atom && (this.atom === other.atom || deepEquals(this.atom, other.atom)));
 	}
 
-	assignJob(creep: Creep): void
+	assignJob(creep: JobAssignable): void
 	{
 		creep.memory.assignedJob = this.id;
-		this.assignedCreeps.push(creep);
-		console.log(`ASSIGN ${this.jobName} TO ${creep.name}`);
+		this.assigned.push(creep);
+		console.log(`ASSIGN ${this.toString()} TO ${creep.name}`);
 	}
 
-	unassignJob(creep: Creep): void
+	unassignJob(creep: JobAssignable): void
 	{
 		creep.memory.assignedJob = null;
-		this.assignedCreeps = this.assignedCreeps.filter((remove: Creep) => remove.name !== creep.name);
-		console.log(`UNASSIGN ${this.jobName} FROM ${creep.name}`);
+		this.assigned = this.assigned.filter((remove: JobAssignable) => remove.name !== creep.name);
+		console.log(`UNASSIGN ${this.toString()} FROM ${creep.name}`);
 	}
 
 	unassignAll(): void
 	{
-		for(const creep of this.assignedCreeps)
+		for(const creep of this.assigned)
 		{
 			this.unassignJob(creep);
 		}
 	}
 
 	abstract run(): boolean;
+
+	toString(): string
+	{
+		/* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
+		return `${this.jobName}:${this.atom}`;
+	}
 }

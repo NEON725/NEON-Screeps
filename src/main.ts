@@ -4,23 +4,43 @@ import FillSpawnerJob from "jobs/FillSpawnerJob";
 import JobQueue from "jobs/JobQueue";
 import CreepRosterMeta from "types/CreepRosterMeta";
 import JobBase from "jobs/JobBase";
-import {spawnCreep} from "utils/misc";
+import {isJobAssignable} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
+import SpawnCreepJob from "jobs/SpawnCreepJob";
 
 type BasicVoidFuncType = ()=> void;
 declare global
 {
-	interface CreepMemory
+	interface JobAssignableMemory
 	{
 		role: string;
-		assignedJob: Id<JobBase> | null;
+		assignedJob: Id<JobBase> | null | undefined;
+	}
+	interface CreepMemory extends JobAssignableMemory
+	{
+	}
+	interface SpawnMemory extends JobAssignableMemory
+	{
+	}
+	interface Structure
+	{
+		my: boolean | undefined;
+	}
+	interface JobAssignable
+	{
+		name: string;
+		memory: JobAssignableMemory;
+	}
+	interface StructureSpawn extends JobAssignable
+	{
 	}
 	namespace NodeJS
 	{
 		interface Global
 		{
-			jobQueue: JobQueue;
 			killAllCreeps: BasicVoidFuncType;
+			jobQueue: JobQueue;
+			roleIndex: RoleIndex;
 		}
 	}
 }
@@ -34,10 +54,7 @@ global.killAllCreeps = function()
 	}
 }
 
-const roleIndex = new RoleIndex();
-let creepRosterMeta = new CreepRosterMeta();
-
-for(const name in Memory.creeps)
+for(const name in Game.creeps)
 {
 	const creep = Game.creeps[name];
 	const memory = creep?.memory;
@@ -46,15 +63,29 @@ for(const name in Memory.creeps)
 		memory.assignedJob = null;
 	}
 }
+for(const name in Game.structures)
+{
+	const structure = Game.structures[name];
+	if(isJobAssignable(structure))
+	{
+		const memory = (structure as unknown as JobAssignable).memory;
+		if(memory?.assignedJob)
+		{
+			memory.assignedJob = null;
+		}
+	}
+}
 
 const jobQueue = new JobQueue();
 global.jobQueue = jobQueue;
+const roleIndex = new RoleIndex();
+global.roleIndex = roleIndex;
+let creepRosterMeta = new CreepRosterMeta();
 
 console.log("NEON - INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
-	console.log(`RUN: ${Game.time}`);
 	const nextCreepRosterMeta = new CreepRosterMeta();
 	jobQueue.run();
 	let nextFillableJob = jobQueue.getNextFillableJob();
@@ -65,27 +96,35 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			delete Memory.creeps[name];
 			continue;
 		}
+	}
+
+	for(const name in Game.creeps)
+	{
 		const creep = Game.creeps[name];
 		const memory = creep.memory;
 		const role = roleIndex.getRole(memory.role);
-		if(nextFillableJob != null && !memory.assignedJob && role.canAcceptJob(creep, nextFillableJob))
-		{
-			nextFillableJob.assignJob(creep);
-			nextFillableJob = null;
-		}
+		if(jobQueue.attemptFillJob(creep, nextFillableJob)){nextFillableJob = null;}
 		role.run(creep);
-		nextCreepRosterMeta.total++;
+		nextCreepRosterMeta.tallyCreep(creep);
 	}
 	creepRosterMeta = nextCreepRosterMeta;
+
 	for(const name in Game.structures)
 	{
 		const structure = Game.structures[name];
+		if(structure.my && isJobAssignable(structure))
+		{
+			const assignableStructure = (structure as unknown) as JobAssignable;
+			const role = roleIndex.getRole(assignableStructure);
+			if(jobQueue.attemptFillJob(assignableStructure, nextFillableJob)){nextFillableJob = null;}
+			role.run(undefined, structure);
+		}
 		switch(structure.structureType)
 		{
 			case STRUCTURE_SPAWN:
 			{
 				const spawn = structure as StructureSpawn;
-				if(FillSpawnerJob.isJobNeeded(spawn))
+				if(spawn.my && FillSpawnerJob.isJobNeeded(spawn))
 				{
 					const fillJob = new FillSpawnerJob(spawn);
 					jobQueue.addJob(fillJob);
@@ -95,7 +134,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			case STRUCTURE_CONTROLLER:
 			{
 				const controller = structure as StructureController;
-				if(UpgradeControllerJob.isJobNeeded(controller))
+				if(controller.my && UpgradeControllerJob.isJobNeeded(controller))
 				{
 					const upgradeJob = new UpgradeControllerJob(controller);
 					jobQueue.addJob(upgradeJob);
@@ -109,6 +148,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	const mainSpawn = Game.spawns.Spawn1;
 	if(mainSpawn.store.energy >= 200 && creepRosterMeta.total < 30)
 	{
-		spawnCreep(mainSpawn, roleIndex.getRole("worker"));
+		jobQueue.addJob(new SpawnCreepJob("Worker", "excess"));
 	}
 });

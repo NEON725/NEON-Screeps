@@ -100,7 +100,7 @@ export default class WorkerRole extends CreepRole
 		}
 	}
 
-	canAcceptJob(creep: Creep, job: JobBase): boolean
+	canAcceptJob(creep: JobAssignable, job: JobBase): boolean
 	{
 		return !(creep.memory as WorkerMemory).harvesting && (ACCEPTABLE_JOBS.includes(job.jobName));
 	}
