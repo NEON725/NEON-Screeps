@@ -4,13 +4,14 @@ import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
 import CreepRole from "roles/CreepRole";
 import {moveTo, randomDirection} from "utils/misc";
+import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 
 export class WorkerMemory extends CreepMemoryBase
 {
 	harvesting = true;
 }
 
-const ACCEPTABLE_JOBS = ["FillSpawner", "UpgradeController"];
+const ACCEPTABLE_JOBS = ["FillSpawner", "UpgradeController", "ConstructBuilding"];
 
 export default class WorkerRole extends CreepRole
 {
@@ -47,54 +48,68 @@ export default class WorkerRole extends CreepRole
 		else
 		{
 			const job = global.jobQueue.getJobById(jobId);
+			let result: number;
+			let targetPos: RoomPosition | undefined;
 			switch(job?.jobName)
 			{
 				case "FillSpawner":
+					{
+						const fillJob = job as FillSpawnerJob;
+						const structure = Game.getObjectById(fillJob.spawnId) as StructureSpawn;
+						result = creep.transfer(structure, RESOURCE_ENERGY);
+						targetPos = structure.pos;
+					}
+					break;
 				case "UpgradeController":
-				{
-					let structure: Structure;
-					let result;
-					switch(job.jobName)
 					{
-						case "FillSpawner":
-							{
-								const fillJob = job as FillSpawnerJob;
-								structure = Game.getObjectById(fillJob.spawnId) as Structure;
-								result = creep.transfer(structure as StructureSpawn, RESOURCE_ENERGY);
-							}
-							break;
-						case "UpgradeController":
-							{
-								const upgradeJob = job as UpgradeControllerJob;
-								structure = Game.getObjectById(upgradeJob.controllerId) as Structure;
-								result = creep.upgradeController(structure as StructureController);
-							}
-							break;
+						const upgradeJob = job as UpgradeControllerJob;
+						const structure = Game.getObjectById(upgradeJob.controllerId) as StructureController;
+						result = creep.upgradeController(structure);
+						targetPos = structure.pos;
 					}
-					switch(result)
-					{
-						case ERR_NOT_IN_RANGE:
-						{
-							moveTo(creep, structure, {visualizePathStyle: {}});
-							break;
-						}
-						case ERR_FULL:
-						{
-							if(carry.getFreeCapacity() > 0){memory.harvesting = true;}
-							job.unassignJob(creep);
-							break;
-						}
-						case OK:
-							break;
-						default:
-							throw new Error(`Unknown result: job:${job.jobName} ${result}`);
-					}
-					if(result === ERR_NOT_IN_RANGE){creep.moveTo(structure);}
 					break;
-				}
+				case "ConstructBuilding":
+					{
+						const constructJob = job as ConstructBuildingJob;
+						const structure = Game.getObjectById(constructJob.constructionSiteId) as ConstructionSite;
+						result = creep.build(structure);
+						targetPos = structure.pos;
+					}
+					break;
 				default:
-					creep.move(randomDirection());
+					result = creep.move(randomDirection());
 					break;
+			}
+			this.handlePostOperation(creep, job, result, targetPos);
+		}
+	}
+
+	handlePostOperation(self: Creep, job: JobBase | null, opResult: number, targetPos?: RoomPosition): void
+	{
+		const carry = self.store;
+		const memory = self.memory as WorkerMemory;
+		switch(opResult)
+		{
+			case ERR_NOT_IN_RANGE:
+				if(targetPos)
+				{
+					moveTo(self, targetPos, {visualizePathStyle: {}});
+				}
+				break;
+			case ERR_FULL:
+				if(job)
+				{
+					if(carry.getFreeCapacity() > 0){memory.harvesting = true;}
+					job.unassignJob(self);
+				}
+				break;
+			case OK:
+			case ERR_TIRED:
+				break;
+			default:
+			{
+				const jobText = job ? job.toString() : "none";
+				throw new Error(`Unknown result: job:${jobText} ${opResult}`);
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import JobBase from "jobs/JobBase";
 import {isJobAssignable} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import SpawnCreepJob from "jobs/SpawnCreepJob";
+import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -147,5 +148,12 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			default:
 				break;
 		}
+	}
+
+	for(const name in Game.constructionSites)
+	{
+		const site = Game.constructionSites[name];
+		const constructJob = new ConstructBuildingJob(site);
+		jobQueue.addJob(constructJob);
 	}
 });
