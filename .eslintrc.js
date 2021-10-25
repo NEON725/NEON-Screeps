@@ -41,7 +41,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-expressions": "warn",
 		"@typescript-eslint/no-unused-vars": "off",
 		"@typescript-eslint/no-use-before-define": ["error", { functions: false }],
-		"@typescript-eslint/prefer-for-of": "error",
+		"@typescript-eslint/prefer-for-of": "off",
 		"@typescript-eslint/explicit-module-boundary-types": "off",
 		"@typescript-eslint/no-empty-function": "off",
 		"@typescript-eslint/no-unsafe-member-access": "off",
