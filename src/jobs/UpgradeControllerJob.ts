@@ -5,7 +5,7 @@ export default class UpgradeControllerJob extends JobBase
 	controllerId: Id<StructureController>;
 	constructor(controller: StructureController)
 	{
-		super("UpgradeController", {maxAssigned: 3, atom: controller.id});
+		super("UpgradeController", {maxAssigned: 12, atom: controller.id});
 		this.controllerId = controller.id;
 	}
 

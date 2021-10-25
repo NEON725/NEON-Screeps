@@ -5,7 +5,7 @@ export default class FillSpawnerJob extends JobBase
 	spawnId: Id<StructureSpawn>;
 	constructor(spawn: StructureSpawn)
 	{
-		super("FillSpawner", {maxAssigned: 3, atom: spawn.id});
+		super("FillSpawner", {maxAssigned: 8, atom: spawn.id});
 		this.spawnId = spawn.id;
 	}
 
