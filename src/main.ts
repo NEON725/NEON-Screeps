@@ -153,8 +153,10 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		switch(structure.structureType)
 		{
 			case STRUCTURE_SPAWN:
+			case STRUCTURE_TOWER:
+			case STRUCTURE_EXTENSION:
 			{
-				const spawn = structure as StructureSpawn;
+				const spawn = structure as StructureWithStore;
 				if(spawn.my && ChargeStructureJob.isJobNeeded(spawn))
 				{
 					const fillJob = new ChargeStructureJob(spawn);
