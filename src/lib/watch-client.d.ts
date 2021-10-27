@@ -1,0 +1,1 @@
+declare module "screeps-multimeter/lib/watch-client";

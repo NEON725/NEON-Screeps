@@ -8,6 +8,7 @@ import {isJobAssignable, log, LogLevel, padString, setLogLevel} from "utils/misc
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 import SendGiftJob from "jobs/SendGiftJob";
+import watcher from "screeps-multimeter/lib/watch-client";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -226,4 +227,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 
 	const giftJob = new SendGiftJob("W8N2");
 	jobQueue.addJob(giftJob);
+
+	watcher();
 });
