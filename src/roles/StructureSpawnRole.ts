@@ -18,6 +18,7 @@ export default class StructureSpawnRole extends CreepRole
 
 	canAcceptJob(creep: JobAssignable, job: JobBase): boolean
 	{
+		if(job.jobName !== "SpawnCreep"){return false;}
 		const spawn = creep as unknown as StructureSpawn;
 		const spawnJob = job as SpawnCreepJob;
 		return spawn.spawnCreep(spawnJob.body, "dryrun", {dryRun: true}) === OK;
@@ -31,7 +32,7 @@ export default class StructureSpawnRole extends CreepRole
 		{
 			const result = spawn.spawnCreep(spawnJob.body, generateRandomName(), {memory: spawnJob.initialMemory});
 			if(result === OK){spawnJob.reportCompletedScreep();}
-			else{console.error(`Failed to spawn: ${spawnJob.toString()}`);}
+			else{console.log(`Failed to spawn: ${spawnJob.toString()}`);}
 			spawnJob.unassignJob(spawn);
 		}
 	}
