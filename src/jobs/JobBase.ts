@@ -35,14 +35,14 @@ export default abstract class JobBase
 
 	assignJob(creep: JobAssignable): void
 	{
-		log(LogLevel.INFO, "ASSIGN", this.toString(), creep);
+		log(LogLevel.WALL, "JOB ASSIGN", this.toString(), creep);
 		creep.memory.assignedJob = this.id;
 		this.assigned.push(creep);
 	}
 
 	unassignJob(creep: JobAssignable): void
 	{
-		log(LogLevel.INFO, "UNASSIGN", this.toString(), creep);
+		log(LogLevel.WALL, "JOB UNASSIGN", this.toString(), creep);
 		creep.memory.assignedJob = null;
 		this.assigned = this.assigned.filter((remove: JobAssignable) => remove.name !== creep.name);
 	}

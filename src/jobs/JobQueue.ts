@@ -13,7 +13,7 @@ export default class JobQueue
 		const previousExists = this.jobs.reduce((prev, next) => job.atomEquals(next) ? next : prev, null as JobBase | null);
 		if(previousExists){return false;}
 		this.jobs.push(job);
-		log(LogLevel.INFO, "NEW JOB", job.toString());
+		log(LogLevel.INFO, "JOB ", job.toString());
 		return true;
 	}
 
@@ -44,7 +44,7 @@ export default class JobQueue
 			if(!keep)
 			{
 				job.unassignAll();
-				log(LogLevel.INFO, "DROP JOB", job.toString());
+				log(LogLevel.INFO, "JOB DONE", job.toString());
 			}
 			else if(job.assigned.length < job.maxAssigned)
 			{
