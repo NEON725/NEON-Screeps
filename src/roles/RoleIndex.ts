@@ -3,6 +3,7 @@ import WorkerRole from "roles/WorkerRole";
 import StructureSpawnRole from "./StructureSpawnRole";
 import StructureControllerRole from "./StructureControllerRole";
 import MuleRole from "./MuleRole";
+import ScoutRole from "./ScoutRole";
 
 export default class RoleIndex
 {
@@ -13,6 +14,7 @@ export default class RoleIndex
 		{
 			Worker: new WorkerRole(),
 			Mule: new MuleRole(),
+			Scout: new ScoutRole(),
 			StructureSpawn: new StructureSpawnRole(),
 			StructureController: new StructureControllerRole(),
 		};
