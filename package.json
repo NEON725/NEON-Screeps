@@ -64,7 +64,8 @@
 		"ts-node": "^10.2.0",
 		"tsconfig-paths": "^3.10.1",
 		"typescript": "^4.3.5",
-		"@rollup/plugin-json": "^4.1.0"
+		"@rollup/plugin-json": "^4.1.0",
+		"screeps-multimeter": "^2.0.4"
 	},
 	"dependencies": {
 		"source-map": "~0.6.1"
