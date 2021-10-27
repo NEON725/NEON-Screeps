@@ -114,6 +114,8 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	{
 		if(!(name in Game.creeps))
 		{
+			const memory = Memory.creeps[name] as CreepMemory;
+			console.log(`DEAD ${memory.role} ${name}`);
 			delete Memory.creeps[name];
 			continue;
 		}
