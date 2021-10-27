@@ -1,6 +1,6 @@
 import {ErrorMapper} from "utils/ErrorMapper";
 import RoleIndex from "roles/RoleIndex";
-import FillSpawnerJob from "jobs/FillSpawnerJob";
+import ChargeStructureJob from "jobs/ChargeStructureJob";
 import JobQueue from "jobs/JobQueue";
 import CreepRosterMeta from "types/CreepRosterMeta";
 import JobBase from "jobs/JobBase";
@@ -31,6 +31,10 @@ declare global
 	{
 		name: string;
 		memory: JobAssignableMemory;
+	}
+	interface StructureWithStore extends Structure
+	{
+		store: Store<RESOURCE_ENERGY, false>;
 	}
 	interface StructureSpawn extends JobAssignable
 	{
@@ -151,9 +155,9 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			case STRUCTURE_SPAWN:
 			{
 				const spawn = structure as StructureSpawn;
-				if(spawn.my && FillSpawnerJob.isJobNeeded(spawn))
+				if(spawn.my && ChargeStructureJob.isJobNeeded(spawn))
 				{
-					const fillJob = new FillSpawnerJob(spawn);
+					const fillJob = new ChargeStructureJob(spawn);
 					jobQueue.addJob(fillJob);
 				}
 				break;

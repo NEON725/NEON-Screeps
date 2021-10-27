@@ -1,4 +1,4 @@
-import FillSpawnerJob from "jobs/FillSpawnerJob";
+import ChargeStructureJob from "jobs/ChargeStructureJob";
 import JobBase from "jobs/JobBase";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import CreepMemoryBase from "types/CreepMemoryBase";
@@ -11,7 +11,7 @@ export class WorkerMemory extends CreepMemoryBase
 	harvesting = true;
 }
 
-const ACCEPTABLE_JOBS = ["FillSpawner", "UpgradeController", "ConstructBuilding"];
+const ACCEPTABLE_JOBS = ["ChargeStructure", "UpgradeController", "ConstructBuilding"];
 
 export default class WorkerRole extends CreepRole
 {
@@ -52,10 +52,10 @@ export default class WorkerRole extends CreepRole
 			let targetPos: RoomPosition | undefined;
 			switch(job?.jobName)
 			{
-				case "FillSpawner":
+				case "ChargeStructure":
 					{
-						const fillJob = job as FillSpawnerJob;
-						const structure = Game.getObjectById(fillJob.spawnId) as StructureSpawn;
+						const fillJob = job as ChargeStructureJob;
+						const structure = Game.getObjectById(fillJob.structureId) as Structure;
 						result = creep.transfer(structure, RESOURCE_ENERGY);
 						targetPos = structure.pos;
 					}
