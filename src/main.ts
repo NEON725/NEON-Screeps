@@ -47,10 +47,11 @@ declare global
 			killAllCreeps: BasicVoidFuncType;
 			jobQueue: JobQueue;
 			roleIndex: RoleIndex;
-			creepRosterMeta: CreepRosterMeta|undefined;
+			creepRosterMeta: CreepRosterMeta | undefined;
 			runOnRole: any;
 			pingRole: any;
 			setLogLevel: any;
+			getStatusLine: any;
 		}
 	}
 }
@@ -108,6 +109,17 @@ const jobQueue = new JobQueue();
 global.jobQueue = jobQueue;
 const roleIndex = new RoleIndex();
 global.roleIndex = roleIndex;
+global.getStatusLine = function(): string
+{
+	/* eslint-disable @typescript-eslint/restrict-template-expressions */
+	/* eslint-disable @typescript-eslint/restrict-plus-operands */
+	const roleText = `x${global.creepRosterMeta?.total} ${global.roleIndex.roleNames.map((roleName: string)=>`${roleName}:${global.creepRosterMeta?.getTotal(roleName)}`).filter((text: string)=>!text.endsWith(":0")).join(" ")}`
+	const jobQueueTallies: any = {}
+	jobQueue.fillableJobs.forEach((job)=>{jobQueueTallies[job.jobName] = (jobQueueTallies[job.jobName] || 0) + (job.maxAssigned - job.assigned.length);});
+	const jobQueueText = `x${jobQueue.fillableJobs.length} ${Object.keys(jobQueueTallies).map((jobName: string)=>`${jobName}:${jobQueueTallies[jobName]}`).join(" ")}`;
+	return `POP:${roleText} JOBS:${jobQueueText}`;
+	/* eslint-enable */
+}
 
 let lastRoomList: string[] = [];
 
@@ -140,7 +152,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		role.run(creep);
 		creepRosterMeta.tallyCreep(creep);
 	}
-	global.creepRosterMeta=creepRosterMeta;
+	global.creepRosterMeta = creepRosterMeta;
 
 	const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
 	if(spawnJob){jobQueue.addJob(spawnJob);}
@@ -230,5 +242,5 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	const giftJob = new SendGiftJob("W8N2");
 	jobQueue.addJob(giftJob);
 
-	watcher();
+	watcher(); /* eslint-disable-line */
 });
