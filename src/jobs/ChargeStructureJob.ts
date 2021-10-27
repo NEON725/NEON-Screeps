@@ -3,7 +3,7 @@ import JobPriority from "./JobPriority";
 
 export default class ChargeStructureJob extends JobBase
 {
-	structureId: Id<Structure>;
+	structureId: Id<StructureWithStore>;
 	constructor(structure: StructureWithStore)
 	{
 		super("ChargeStructure",
