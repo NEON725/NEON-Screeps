@@ -1,3 +1,4 @@
+import {log, LogLevel} from "utils/misc";
 import JobBase from "./JobBase";
 import JobPriority from "./JobPriority";
 
@@ -20,7 +21,7 @@ export default class UpgradeControllerJob extends JobBase
 		const controller = Game.getObjectById(this.controllerId) as StructureController;
 		if(controller.ticksToDowngrade <= 3000)
 		{
-			console.log(`Controller ${controller.room.name} is decaying!`);
+			log(LogLevel.DANGER, "LOSTCONTROL", `Controller in ${controller.room.name} is decaying!`);
 			this.priority = JobPriority.DANGER;
 		}
 		else{this.priority = JobPriority.EXPAND;}

@@ -4,9 +4,8 @@ import FillSpawnerJob from "jobs/FillSpawnerJob";
 import JobQueue from "jobs/JobQueue";
 import CreepRosterMeta from "types/CreepRosterMeta";
 import JobBase from "jobs/JobBase";
-import {isJobAssignable} from "utils/misc";
+import {isJobAssignable, log, LogLevel, padString, setLogLevel} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
-import SpawnCreepJob from "jobs/SpawnCreepJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 import SendGiftJob from "jobs/SendGiftJob";
 
@@ -45,9 +44,12 @@ declare global
 			roleIndex: RoleIndex;
 			runOnRole: any;
 			pingRole: any;
+			setLogLevel: any;
 		}
 	}
 }
+
+global.setLogLevel = setLogLevel;
 
 global.killAllCreeps = function()
 {
@@ -101,7 +103,7 @@ global.jobQueue = jobQueue;
 const roleIndex = new RoleIndex();
 global.roleIndex = roleIndex;
 
-console.log("NEON - INIT COMPLETE");
+log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
@@ -114,8 +116,8 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	{
 		if(!(name in Game.creeps))
 		{
-			const memory = Memory.creeps[name] as CreepMemory;
-			console.log(`DEAD ${memory.role} ${name}`);
+			const memory = Memory.creeps[name];
+			log(LogLevel.EVENT, "DEAD", "", {name, memory} as JobAssignable);
 			delete Memory.creeps[name];
 			continue;
 		}

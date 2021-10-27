@@ -1,4 +1,4 @@
-import RoleIndex from "roles/RoleIndex";
+import {log, LogLevel} from "utils/misc";
 import JobBase from "./JobBase"
 import JobPriority, {getJobPrioritiesSorted} from "./JobPriority";
 
@@ -13,7 +13,7 @@ export default class JobQueue
 		const previousExists = this.jobs.reduce((prev, next) => job.atomEquals(next) ? next : prev, null as JobBase | null);
 		if(previousExists){return false;}
 		this.jobs.push(job);
-		console.log(`NEW JOB: ${job.toString()}`);
+		log(LogLevel.INFO, "NEW JOB", job.toString());
 		return true;
 	}
 
@@ -44,7 +44,7 @@ export default class JobQueue
 			if(!keep)
 			{
 				job.unassignAll();
-				console.log(`DROP JOB: ${job.toString()}`);
+				log(LogLevel.INFO, "DROP JOB", job.toString());
 			}
 			else if(job.assigned.length < job.maxAssigned)
 			{

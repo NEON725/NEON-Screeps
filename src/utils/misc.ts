@@ -1,4 +1,3 @@
-import CreepRole from "roles/CreepRole";
 import names from "utils/names.json";
 
 export function deepEquals(a: any, b: any)
@@ -68,4 +67,61 @@ export function moveTo(
 		retVal = self.moveTo(pos, opts);
 	}
 	return retVal;
+}
+
+export function padString(base: string, length: number, pad?: string, left?: boolean)
+{
+	const _pad = pad || " ";
+	const padLength = length - base.length;
+	const repetitions = Math.ceil(padLength / _pad.length);
+	let padding = "";
+	for(let i = 0; i < repetitions; i++){padding += _pad;}
+	padding = padding.substr(0, padLength);
+	return left ? padding + base : base + padding;
+}
+
+export enum LogLevel
+{ /* eslint-disable-line @typescript-eslint/indent */
+	WALL,
+	INFO,
+	EVENT,
+	DANGER,
+}
+
+let logLevel: LogLevel = LogLevel.INFO;
+export function setLogLevel(level: LogLevel){logLevel = level;}
+
+const PREFIX_LENGTH = 12;
+const NAME_LENGTH = 12;
+const ROLE_LENGTH = 8;
+const NAME_COLOR = "#ccffcc";
+const ROLE_COLOR = "#99ff99";
+const DEFAULT_COLOR = "#ffffff";
+const DULL_COLOR = "#888888";
+const LEVEL_COLORS: string[] = [];
+LEVEL_COLORS[LogLevel.WALL] = DULL_COLOR;
+LEVEL_COLORS[LogLevel.EVENT] = "#aaaaff";
+LEVEL_COLORS[LogLevel.DANGER] = "#ff4444";
+
+export function log(level: LogLevel, prefix: string, message: string, creep?: JobAssignable)
+{
+	if(level >= logLevel)
+	{
+		const matchCreep = level <= LogLevel.WALL || level >= LogLevel.EVENT;
+		const prefixColorCode = `${LEVEL_COLORS[level] || DEFAULT_COLOR}-fg`;
+		const prefixPad = padString(prefix, PREFIX_LENGTH);
+		let nameLogged; let roleLogged;
+		const nameColor = matchCreep ? LEVEL_COLORS[level] : NAME_COLOR;
+		const roleColor = matchCreep ? LEVEL_COLORS[level] : ROLE_COLOR;
+		if(creep)
+		{
+			nameLogged = `{${nameColor}-fg}${padString(creep.name, NAME_LENGTH)}{/${nameColor}-fg}`;
+			const memory = creep.memory;
+			const roleName = memory?.role;
+			if(roleName){roleLogged = `{${roleColor}-fg}${padString(roleName, ROLE_LENGTH)}{/${roleColor}-fg}`;}
+		}
+		if(!nameLogged){nameLogged = `{${DULL_COLOR}-fg}${padString("", NAME_LENGTH, "_")}{/${DULL_COLOR}-fg}`;}
+		if(!roleLogged){roleLogged = `{${DULL_COLOR}-fg}${padString("", ROLE_LENGTH, "_")}{/${DULL_COLOR}-fg}`;}
+		console.log(`{${prefixColorCode}}${prefixPad}{/${prefixColorCode}}|${nameLogged}|${roleLogged}| {${prefixColorCode}}${message}{/${prefixColorCode}}`);
+	}
 }

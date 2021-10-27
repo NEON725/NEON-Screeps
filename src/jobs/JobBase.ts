@@ -1,5 +1,7 @@
-import {deepEquals, generateID} from "utils/misc";
+import {deepEquals, generateID, log, LogLevel, padString} from "utils/misc";
 import JobPriority from "./JobPriority";
+
+const JOB_PAD_LENGTH = 40;
 
 export default abstract class JobBase
 {
@@ -33,16 +35,16 @@ export default abstract class JobBase
 
 	assignJob(creep: JobAssignable): void
 	{
+		log(LogLevel.INFO, "ASSIGN", this.toString(), creep);
 		creep.memory.assignedJob = this.id;
 		this.assigned.push(creep);
-		console.log(`ASSIGN ${this.toString()} TO ${creep.name}`);
 	}
 
 	unassignJob(creep: JobAssignable): void
 	{
+		log(LogLevel.INFO, "UNASSIGN", this.toString(), creep);
 		creep.memory.assignedJob = null;
 		this.assigned = this.assigned.filter((remove: JobAssignable) => remove.name !== creep.name);
-		console.log(`UNASSIGN ${this.toString()} FROM ${creep.name}`);
 	}
 
 	unassignAll(): void
