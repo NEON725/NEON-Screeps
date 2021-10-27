@@ -47,6 +47,7 @@ declare global
 			killAllCreeps: BasicVoidFuncType;
 			jobQueue: JobQueue;
 			roleIndex: RoleIndex;
+			creepRosterMeta: CreepRosterMeta|undefined;
 			runOnRole: any;
 			pingRole: any;
 			setLogLevel: any;
@@ -139,6 +140,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		role.run(creep);
 		creepRosterMeta.tallyCreep(creep);
 	}
+	global.creepRosterMeta=creepRosterMeta;
 
 	const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
 	if(spawnJob){jobQueue.addJob(spawnJob);}
