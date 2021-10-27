@@ -121,7 +121,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		if(!(name in Game.creeps))
 		{
 			const memory = Memory.creeps[name];
-			log(LogLevel.EVENT, "DEAD", "", {name, memory} as JobAssignable);
+			log(LogLevel.EVENT, "DEAD", "Creep died...", {name, memory} as JobAssignable);
 			delete Memory.creeps[name];
 			continue;
 		}

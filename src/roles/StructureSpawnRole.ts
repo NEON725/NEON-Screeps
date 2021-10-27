@@ -30,10 +30,18 @@ export default class StructureSpawnRole extends CreepRole
 		const spawnJob = global.jobQueue.getJobById(spawn.memory.assignedJob) as SpawnCreepJob;
 		if(spawnJob !== null && !spawn.spawning)
 		{
-			const result = spawn.spawnCreep(spawnJob.body, generateRandomName(), {memory: spawnJob.initialMemory});
-			if(result === OK){spawnJob.reportCompletedScreep();}
-			else{log(LogLevel.DANGER, "SPAWN", `Failed to spawn: ${spawnJob.toString()}`);}
-			spawnJob.unassignJob(spawn);
+			if(!spawnJob.name)
+			{
+				const name = generateRandomName();
+				const result = spawn.spawnCreep(spawnJob.body, name, {memory: spawnJob.initialMemory});
+				if(result === OK){spawnJob.name = name;}
+				else
+				{
+					log(LogLevel.DANGER, "SPAWN", `Failed to spawn: ${spawnJob.toString()}`);
+					spawnJob.unassignJob(spawn);
+				}
+			}
+			else{spawnJob.reportCompletedScreep();}
 		}
 	}
 
