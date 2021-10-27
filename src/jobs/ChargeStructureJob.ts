@@ -17,12 +17,18 @@ export default class ChargeStructureJob extends JobBase
 
 	run(): boolean
 	{
-		const structure = Game.getObjectById(this.structureId) as StructureWithStore | null;
+		const structure = Game.getObjectById(this.structureId);
 		return ChargeStructureJob.isJobNeeded(structure);
 	}
 
 	static isJobNeeded(structure: StructureWithStore | null): boolean
 	{
 		return structure !== null && structure.store.getFreeCapacity(RESOURCE_ENERGY) !== 0;
+	}
+
+	toString(): string
+	{
+		const structure = Game.getObjectById(this.structureId) as StructureWithStore
+		return `${super.toString()}:${structure?.structureType || "???"}`;
 	}
 }

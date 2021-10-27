@@ -32,4 +32,10 @@ export default class UpgradeControllerJob extends JobBase
 	{
 		return controller !== null && !controller.upgradeBlocked && (controller.level < 8 || controller.ticksToDowngrade < 5000);
 	}
+
+	toString(): string
+	{
+		const structure = Game.getObjectById(this.controllerId) as StructureController;
+		return `${super.toString()}:${structure?.room?.name || "???"}`;
+	}
 }

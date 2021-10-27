@@ -1,6 +1,4 @@
-import RoleIndex from "roles/RoleIndex";
 import CreepMemoryBase from "types/CreepMemoryBase";
-import {generateRandomName} from "utils/misc";
 import JobBase from "./JobBase";
 import JobPriority from "./JobPriority";
 
@@ -25,5 +23,10 @@ export default class SpawnCreepJob extends JobBase
 	reportCompletedScreep(): void
 	{
 		this.completed = true;
+	}
+
+	toString():string
+	{
+		return `${super.toString()}:${this.initialMemory.role}`;
 	}
 }
