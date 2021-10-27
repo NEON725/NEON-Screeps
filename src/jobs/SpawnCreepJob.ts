@@ -11,7 +11,7 @@ export default class SpawnCreepJob extends JobBase
 	body: BodyPartConstant[];
 	constructor(public roleName: string, atom: string, priority: JobPriority, budget: number)
 	{
-		super(`SpawnCreep: ${roleName}`, {atom, priority});
+		super("SpawnCreep", {atom, priority});
 		const role = global.roleIndex.getRole(roleName);
 		this.initialMemory = role.initMemory();
 		this.body = role.generateBody(budget);
