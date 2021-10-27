@@ -19,7 +19,7 @@ export default class StructureControllerRole extends CreepRole
 		return false;
 	}
 
-	run(creep?: Creep, structure?: Structure): void
+	run(structure: Structure): void
 	{
 	}
 

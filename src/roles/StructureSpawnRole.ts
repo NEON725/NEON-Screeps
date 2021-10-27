@@ -24,7 +24,7 @@ export default class StructureSpawnRole extends CreepRole
 		return spawn.spawnCreep(spawnJob.body, "dryrun", {dryRun: true}) === OK;
 	}
 
-	run(creep?: Creep, structure?: Structure): void
+	run(structure: Structure): void
 	{
 		const spawn = structure as StructureSpawn;
 		const spawnJob = global.jobQueue.getJobById(spawn.memory.assignedJob) as SpawnCreepJob;

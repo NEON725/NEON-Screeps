@@ -148,7 +148,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			const assignableStructure = (structure as unknown) as JobAssignable;
 			const role = roleIndex.getRole(assignableStructure);
 			fillableJobs.filter((nextJob) => !jobQueue.attemptFillJob(assignableStructure, nextJob));
-			role.run(undefined, structure);
+			role.run(structure);
 		}
 		switch(structure.structureType)
 		{
