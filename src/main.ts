@@ -43,6 +43,8 @@ declare global
 			killAllCreeps: BasicVoidFuncType;
 			jobQueue: JobQueue;
 			roleIndex: RoleIndex;
+			runOnRole: any;
+			pingRole: any;
 		}
 	}
 }
@@ -54,6 +56,22 @@ global.killAllCreeps = function()
 		Game.creeps[name].suicide();
 		delete Game.creeps[name];
 	}
+}
+
+global.runOnRole = function(roleName: string, callback: any)
+{
+	for(const name in Game.creeps)
+	{
+		const creep = Game.creeps[name];
+		/* eslint-disable-next-line @typescript-eslint/no-unsafe-call */
+		if(creep.memory.role === roleName){callback(creep);}
+	}
+}
+
+global.pingRole = function(roleName: string)
+{
+	/* eslint-disable-next-line @typescript-eslint/no-unsafe-call */
+	global.runOnRole(roleName, (c: Creep)=>c.say("Here!"));
 }
 
 for(const name in Game.creeps)
