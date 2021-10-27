@@ -8,6 +8,7 @@ import ScoutRole from "./ScoutRole";
 export default class RoleIndex
 {
 	private roleData: any;
+	roleNames: string[];
 	constructor()
 	{
 		this.roleData =
@@ -18,6 +19,7 @@ export default class RoleIndex
 			StructureSpawn: new StructureSpawnRole(),
 			StructureController: new StructureControllerRole(),
 		};
+		this.roleNames = Object.keys(this.roleData);
 	}
 
 	getRole(param: string | JobAssignable): CreepRole
