@@ -107,6 +107,8 @@ global.jobQueue = jobQueue;
 const roleIndex = new RoleIndex();
 global.roleIndex = roleIndex;
 
+let lastRoomList: string[] = [];
+
 log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
@@ -178,6 +180,42 @@ export const loop = ErrorMapper.wrapLoop(() =>
 				break;
 		}
 	}
+
+	for(const roomName in Game.rooms)
+	{
+		const room = Game.rooms[roomName];
+		const events = room.getEventLog();
+		events.forEach((eventRaw: any)=>
+		{
+			switch(eventRaw.event)
+			{
+				case EVENT_ATTACK:
+					{
+						const event = eventRaw as EventData[EVENT_ATTACK];
+						const id = event.targetId as Id<RoomObject>;
+						const target = Game.getObjectById(id);
+						if(target !== null && "my" in target && (target as Creep).my)
+						{
+							log(LogLevel.DANGER, "COMBAT", `Took ${event.damage} damage!`, target as Creep);
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		});
+		if(!lastRoomList.includes(roomName))
+		{
+			const creeps = room.find(FIND_MY_CREEPS);
+			const creep = creeps.length ? creeps[0] : undefined;
+			log(LogLevel.WALL, "MAP", `Gained vision in ${roomName}.`, creep);
+		}
+	}
+	lastRoomList.forEach((roomName: string)=>
+	{
+		if(!Game.rooms[roomName]){log(LogLevel.WALL, "MAP", `Lost vision in ${roomName}.`);}
+	});
+	lastRoomList = Object.keys(Game.rooms);
 
 	for(const name in Game.constructionSites)
 	{
