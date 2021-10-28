@@ -125,3 +125,9 @@ export function log(level: LogLevel, prefix: string, message: string, creep?: Jo
 		console.log(`{${prefixColorCode}}${prefixPad}{/${prefixColorCode}}|${nameLogged}|${roleLogged}| {${prefixColorCode}}${message}{/${prefixColorCode}}`);
 	}
 }
+
+export function tempDebug(msg: string, creep?: JobAssignable): void
+{
+	setLogLevel(LogLevel.WALL);
+	log(LogLevel.WALL, "DEBUG", msg, creep);
+}
