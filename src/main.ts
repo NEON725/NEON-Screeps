@@ -7,8 +7,8 @@ import JobBase from "jobs/JobBase";
 import {isJobAssignable, log, LogLevel, padString, setLogLevel} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
-import SendGiftJob from "jobs/SendGiftJob";
 import watcher from "screeps-multimeter/lib/watch-client";
+import MapIntel, {RoomIntel} from "organization/MapIntel";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -18,12 +18,8 @@ declare global
 		role: string;
 		assignedJob: Id<JobBase> | null | undefined;
 	}
-	interface CreepMemory extends JobAssignableMemory
-	{
-	}
-	interface SpawnMemory extends JobAssignableMemory
-	{
-	}
+	interface CreepMemory extends JobAssignableMemory{}
+	interface SpawnMemory extends JobAssignableMemory{}
 	interface Structure
 	{
 		my: boolean | undefined;
@@ -37,9 +33,8 @@ declare global
 	{
 		store: Store<RESOURCE_ENERGY, false>;
 	}
-	interface StructureSpawn extends JobAssignable
-	{
-	}
+	interface StructureSpawn extends JobAssignable {}
+	interface RoomMemory extends RoomIntel {}
 	namespace NodeJS
 	{
 		interface Global
@@ -52,6 +47,7 @@ declare global
 			pingRole: any;
 			setLogLevel: any;
 			getStatusLine: any;
+			forgetAllRooms: any;
 		}
 	}
 }
@@ -81,6 +77,12 @@ global.pingRole = function(roleName: string)
 {
 	/* eslint-disable-next-line @typescript-eslint/no-unsafe-call */
 	global.runOnRole(roleName, (c: Creep)=>c.say("Here!"));
+}
+
+global.forgetAllRooms = function()
+{
+	for(const roomName in Memory.rooms){delete Memory.rooms[roomName];}
+	Memory.rooms = {};
 }
 
 for(const name in Game.creeps)
@@ -120,8 +122,6 @@ global.getStatusLine = function(): string
 	return `POP:${roleText} JOBS:${jobQueueText}`;
 	/* eslint-enable */
 }
-
-let lastRoomList: string[] = [];
 
 log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
@@ -196,41 +196,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		}
 	}
 
-	for(const roomName in Game.rooms)
-	{
-		const room = Game.rooms[roomName];
-		const events = room.getEventLog();
-		events.forEach((eventRaw: any)=>
-		{
-			switch(eventRaw.event)
-			{
-				case EVENT_ATTACK:
-					{
-						const event = eventRaw as EventData[EVENT_ATTACK];
-						const id = event.targetId as Id<RoomObject>;
-						const target = Game.getObjectById(id);
-						if(target !== null && "my" in target && (target as Creep).my)
-						{
-							log(LogLevel.DANGER, "COMBAT", `Took ${event.damage} damage!`, target as Creep);
-						}
-					}
-					break;
-				default:
-					break;
-			}
-		});
-		if(!lastRoomList.includes(roomName))
-		{
-			const creeps = room.find(FIND_MY_CREEPS);
-			const creep = creeps.length ? creeps[0] : undefined;
-			log(LogLevel.WALL, "MAP", `Gained vision in ${roomName}.`, creep);
-		}
-	}
-	lastRoomList.forEach((roomName: string)=>
-	{
-		if(!Game.rooms[roomName]){log(LogLevel.WALL, "MAP", `Lost vision in ${roomName}.`);}
-	});
-	lastRoomList = Object.keys(Game.rooms);
+	MapIntel.run();
 
 	for(const name in Game.constructionSites)
 	{
@@ -238,9 +204,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		const constructJob = new ConstructBuildingJob(site);
 		jobQueue.addJob(constructJob);
 	}
-
-	const giftJob = new SendGiftJob("W8N2");
-	jobQueue.addJob(giftJob);
 
 	watcher(); /* eslint-disable-line */
 });
