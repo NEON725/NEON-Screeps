@@ -2,9 +2,9 @@ import JobBase from "jobs/JobBase";
 import JobPriority from "jobs/JobPriority";
 import SpawnCreepJob from "jobs/SpawnCreepJob";
 
-const WORKER_PERCENTAGE = 0.4;
+const WORKER_PERCENTAGE = 0.3;
 const SCOUT_PERCENTAGE = 0.1;
-const MULE_PERCENTAGE = 0.2;
+const MULE_PERCENTAGE = 0.5;
 const POPULATION_MAX = 50;
 
 export default class CreepRosterMeta
