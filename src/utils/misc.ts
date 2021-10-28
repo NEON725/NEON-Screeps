@@ -59,7 +59,7 @@ export function moveTo(
 {
 	if(self.fatigue > 0){return OK;}
 	const pos = ("pos" in target) ? target.pos : target;
-	const opts: any = {reusePath: 20, noPathFinding: true, ...(extraOpts || {})};
+	const opts: any = {reusePath: 20, noPathFinding: true, ...(extraOpts || {visualizePathStyle: {}})};
 	let retVal = self.moveTo(pos, opts);
 	if(retVal === ERR_NOT_FOUND || retVal === ERR_NO_PATH)
 	{
