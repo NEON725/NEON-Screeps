@@ -76,4 +76,13 @@ export default class MapIntel
 		if(owner.username === "DingusKhan"){return RoomAllocation.DIPLOMATIC;}
 		return RoomAllocation.HOSTILE;
 	}
+
+	static findNearestRoomByType(originRoomName: string, targetType: RoomAllocation): string | null
+	{
+		type roomEntry = [string, RoomMemory];
+		const validEntries = Object.entries(Memory.rooms).filter(([roomName, roomMemory]: roomEntry): boolean=>roomMemory.allocation === targetType);
+		if(!validEntries.length){return null}
+		const sortedEntries = _.sortBy(validEntries, ([roomName, roomMemory]: roomEntry)=>Game.map.getRoomLinearDistance(originRoomName, roomName));
+		return sortedEntries[0][0];
+	}
 }

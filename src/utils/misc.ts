@@ -58,9 +58,14 @@ export function moveTo(
 ): CreepMoveReturnCode | -2 | -5 | -7
 {
 	if(self.fatigue > 0){return OK;}
-	const pos = ("pos" in target) ? target.pos : target;
+	let pos = ("pos" in target) ? target.pos : target;
 	const opts: any = {reusePath: 20, noPathFinding: true, ...(extraOpts || {visualizePathStyle: {}})};
 	let retVal = self.moveTo(pos, opts);
+	if(retVal === ERR_INVALID_TARGET)
+	{
+		pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+		retVal = self.moveTo(pos, opts);
+	}
 	if(retVal === ERR_NOT_FOUND || retVal === ERR_NO_PATH)
 	{
 		opts.noPathFinding = false;
@@ -130,4 +135,9 @@ export function tempDebug(msg: string, creep?: JobAssignable): void
 {
 	setLogLevel(LogLevel.WALL);
 	log(LogLevel.WALL, "DEBUG", msg, creep);
+}
+
+export function isExit(pos: RoomPosition): boolean
+{
+	return pos.x === 0 || pos.x === 49 || pos.y === 0 || pos.y === 49;
 }
