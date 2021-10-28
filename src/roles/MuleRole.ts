@@ -67,7 +67,7 @@ export default class MuleRole extends CreepRole
 							case STRUCTURE_CONTAINER:
 							case STRUCTURE_EXTENSION:
 							case STRUCTURE_CONTROLLER:
-								result = creep.transfer(target as unknown as StructureStorage | StructureExtension, RESOURCE_ENERGY);
+								result = creep.transfer(target as unknown as Structure, RESOURCE_ENERGY);
 								break;
 							default:
 								break;
@@ -77,7 +77,15 @@ export default class MuleRole extends CreepRole
 				if(result === ERR_NOT_IN_RANGE){moveTo(creep, target);}
 				else if(result !== OK){memory.intent.target = null;}
 			}
-			else if(memory.intent.travelTarget){moveTo(creep, memory.intent.travelTarget);}
+			else if(memory.intent.travelTarget && room.name !== memory.intent.travelTarget.roomName)
+			{
+				moveTo(creep, memory.intent.travelTarget);
+			}
+			else
+			{
+				memory.intent.target = null;
+				log(LogLevel.WALL, "STORING", "Lost target.", creep);
+			}
 		}
 		else if(memory.intent.travelTarget)
 		{
@@ -103,9 +111,9 @@ export default class MuleRole extends CreepRole
 			{
 				let loggableName = "unknown";
 				const validStorageFunc = (structure: Structure)=>
-					structure.structureType in [STRUCTURE_EXTENSION, STRUCTURE_STORAGE]
-					&& (structure as StructureExtension | StructureStorage).store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-				const storage = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: validStorageFunc});
+					([STRUCTURE_EXTENSION, STRUCTURE_STORAGE, STRUCTURE_CONTAINER] as string[]).includes(structure.structureType)
+					&& (structure as StructureExtension | StructureStorage | StructureContainer).store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+				const storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: validStorageFunc});
 				if(storage)
 				{
 					memory.intent.target = storage.id;
@@ -135,7 +143,7 @@ export default class MuleRole extends CreepRole
 						}
 					}
 				}
-				log(LogLevel.WALL, "MINING", `Returning energy to ${loggableName}:${room.name}:${memory.intent.target as string}`)
+				log(LogLevel.WALL, "MINING", `Returning energy to ${loggableName}:${room.name}:${memory.intent.target as string}`, creep)
 			}
 		}
 		else if(memory.intent.harvesting)
