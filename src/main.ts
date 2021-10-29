@@ -9,6 +9,7 @@ import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 import watcher from "screeps-multimeter/lib/watch-client";
 import MapIntel, {RoomIntel} from "organization/MapIntel";
+import BuildingPlanner from "organization/BuildingPlanner";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -197,6 +198,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	}
 
 	MapIntel.run();
+	BuildingPlanner.run();
 
 	for(const name in Game.constructionSites)
 	{
