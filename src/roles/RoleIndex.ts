@@ -42,6 +42,9 @@ export default class RoleIndex
 				case STRUCTURE_CONTROLLER:
 					role = "StructureController"
 					break;
+				case STRUCTURE_TOWER:
+					role = "StructureTower"
+					break;
 			}
 
 		}
