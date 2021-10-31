@@ -154,17 +154,25 @@ export default class BuildingPlanner
 			case BuildPlacementType.RANDOM:
 				while(true){yield new RoomPosition(_.random(49), _.random(49), roomName);}
 			case BuildPlacementType.POPULATION_AVERAGE:
-				while(true){yield global.creepRosterMeta.getPositionAverage(roomName);}
+				for(const pos of generateSpiral(global.creepRosterMeta.getPositionAverage(roomName)))
+				{
+					if(!BuildingPlanner.isRoadPos(pos)){yield pos;}
+				}
+				break;
 			case BuildPlacementType.GRID_ROAD:
 				isRoad = true;
 				/* eslint-disable-next-line no-fallthrough */
 			case BuildPlacementType.GRID:
 				for(const pos of generateSpiral(roomName))
 				{
-					const diagonal = (pos.y + pos.x) % 2 === 0
-					if(diagonal === isRoad){yield pos;}
+					if(isRoad === BuildingPlanner.isRoadPos(pos)){yield pos;}
 				}
 		}
+	}
+
+	static isRoadPos(pos: RoomPosition): boolean
+	{
+		return (pos.y + pos.x) % 2 === 0;
 	}
 
 	static getPlacementTypeByStructure(type: BuildableStructureConstant): BuildPlacementType
