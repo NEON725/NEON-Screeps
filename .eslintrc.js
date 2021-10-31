@@ -77,6 +77,7 @@ module.exports = {
 		"@typescript-eslint/object-curly-spacing": ["error"],
 		"@typescript-eslint/no-shadow": "error",
 		"@typescript-eslint/no-duplicate-imports": "error",
+		"@typescript-eslint/no-unsafe-call": "off",
 		"arrow-parens": ["off", "as-needed"],
 		"space-in-parens": ["error", "never"],
 		camelcase: "error",

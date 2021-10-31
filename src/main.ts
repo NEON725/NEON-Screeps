@@ -125,7 +125,6 @@ global.getStatusLine = function(): string
 	/* eslint-enable */
 }
 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 Profiler.enable();
 log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
@@ -141,7 +140,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	}
 	Profiler.wrap(()=>
 	{
-		/* eslint-enable @typescript-eslint/no-unsafe-call */
 		const defaultRoom = Game.spawns.Spawn1.room;
 
 		const creepRosterMeta = new CreepRosterMeta();
@@ -221,6 +219,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			jobQueue.addJob(constructJob);
 		}
 
-		watcher(); /* eslint-disable-line @typescript-eslint/no-unsafe-call */
+		watcher();
 	});
 });
