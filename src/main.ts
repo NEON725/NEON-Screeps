@@ -4,7 +4,7 @@ import ChargeStructureJob from "jobs/ChargeStructureJob";
 import JobQueue from "jobs/JobQueue";
 import CreepRosterMeta from "types/CreepRosterMeta";
 import JobBase from "jobs/JobBase";
-import {isJobAssignable, log, LogLevel, padString, setLogLevel} from "utils/misc";
+import {isJobAssignable, log, LogLevel, setLogLevel} from "utils/misc";
 import UpgradeControllerJob from "jobs/UpgradeControllerJob";
 import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 import watcher from "screeps-multimeter/lib/watch-client";
@@ -43,7 +43,7 @@ declare global
 			killAllCreeps: BasicVoidFuncType;
 			jobQueue: JobQueue;
 			roleIndex: RoleIndex;
-			creepRosterMeta: CreepRosterMeta | undefined;
+			creepRosterMeta: CreepRosterMeta;
 			runOnRole: any;
 			pingRole: any;
 			setLogLevel: any;
@@ -131,6 +131,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 	const defaultRoom = Game.spawns.Spawn1.room;
 
 	const creepRosterMeta = new CreepRosterMeta();
+	global.creepRosterMeta = creepRosterMeta;
 	jobQueue.run();
 	const fillableJobs = jobQueue.fillableJobs;
 	for(const name in Memory.creeps)
@@ -153,7 +154,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		role.run(creep);
 		creepRosterMeta.tallyCreep(creep);
 	}
-	global.creepRosterMeta = creepRosterMeta;
 
 	const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
 	if(spawnJob){jobQueue.addJob(spawnJob);}
