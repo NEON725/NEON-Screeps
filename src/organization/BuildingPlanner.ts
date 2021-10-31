@@ -1,6 +1,8 @@
 import {generateSpiral, log, LogLevel} from "utils/misc";
+import {RoomAllocation} from "./MapIntel";
 
 const MAX_PLACEMENT_ATTEMPTS = 2500;
+const MAX_CONSTRUCTION_SITES = 1;
 
 export const BUILD_TARGETS: BuildableStructureConstant[][] =
 [
@@ -49,76 +51,97 @@ export default class BuildingPlanner
 	{
 		for(const roomName in Game.rooms)
 		{
+			const mapIntel = Memory.rooms[roomName];
+			if(!mapIntel){continue;}
 			const room = Game.rooms[roomName];
-			const controller = room?.controller;
-			if(!controller || !controller.my){continue;}
-			const rcl = controller.level;
-			const currentBuildTargets = BUILD_TARGETS
-				.slice(0, rcl)
-				.reduce(
-					(prev: BuildableStructureConstant[], next: BuildableStructureConstant[])=>
-						prev.concat(next),
-					[] as BuildableStructureConstant[]
-				);
-			const constructionSites = room.find(
-				FIND_CONSTRUCTION_SITES,
-				{filter: (site: ConstructionSite)=>site.my}
+			switch(mapIntel.allocation)
+			{
+				case RoomAllocation.INDUSTRIAL:
+					BuildingPlanner.planIndustrialDistrict(room);
+					break;
+				case RoomAllocation.NEUTRAL:
+					BuildingPlanner.planEnergySourcePerimeter(room);
+					break;
+			}
+		}
+	}
+
+	static planIndustrialDistrict(room: Room): void
+	{
+		const controller = room?.controller;
+		if(!controller || !controller.my){return;}
+		const rcl = controller.level;
+		const currentBuildTargets = BUILD_TARGETS
+			.slice(0, rcl)
+			.reduce(
+				(prev: BuildableStructureConstant[], next: BuildableStructureConstant[])=>
+					prev.concat(next),
+				[] as BuildableStructureConstant[]
 			);
-			if(constructionSites.length > 0){continue;}
-			const myBuiltStructureTallies: {[key: string]: number} = {};
-			room.find(FIND_MY_STRUCTURES).forEach((structure: AnyOwnedStructure)=>
-			{
-				myBuiltStructureTallies[structure.structureType]
+		const constructionSites = room.find(
+			FIND_CONSTRUCTION_SITES,
+			{filter: (site: ConstructionSite)=>site.my}
+		);
+		if(constructionSites.length >= MAX_CONSTRUCTION_SITES){return;}
+		const myBuiltStructureTallies: {[key: string]: number} = {};
+		room.find(FIND_MY_STRUCTURES).forEach((structure: AnyOwnedStructure)=>
+		{
+			myBuiltStructureTallies[structure.structureType]
 					= (myBuiltStructureTallies[structure.structureType] || 0) + 1;
-			});
-			let finishedConstructionSitePlacement = false;
-			const buildTargetTalliesCumulative: {[key: string]: number} = {};
-			currentBuildTargets.forEach((structureType: BuildableStructureConstant)=>
+		});
+		let finishedConstructionSitePlacement = false;
+		const buildTargetTalliesCumulative: {[key: string]: number} = {};
+		currentBuildTargets.forEach((structureType: BuildableStructureConstant)=>
+		{
+			if(finishedConstructionSitePlacement){return;}
+			const buildCountTarget = (buildTargetTalliesCumulative[structureType] || 0) + 1;
+			buildTargetTalliesCumulative[structureType] = buildCountTarget;
+			if((myBuiltStructureTallies[structureType] || 0) < buildCountTarget)
 			{
-				if(finishedConstructionSitePlacement){return;}
-				const buildCountTarget = (buildTargetTalliesCumulative[structureType] || 0) + 1;
-				buildTargetTalliesCumulative[structureType] = buildCountTarget;
-				if((myBuiltStructureTallies[structureType] || 0) < buildCountTarget)
+				let attempts = 0;
+				for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildingPlanner.getPlacementTypeByStructure(structureType)))
 				{
-					let attempts = 0;
-					for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildingPlanner.getPlacementTypeByStructure(structureType)))
+					if(room.createConstructionSite(location, structureType) === OK)
 					{
-						if(room.createConstructionSite(location, structureType) === OK)
-						{
-							finishedConstructionSitePlacement = true;
-							log(LogLevel.INFO, "CONSTRUCT", `Planned new ${structureType} at ${location.x},${location.y}.`);
-							break;
-						}
-						else if(++attempts >= MAX_PLACEMENT_ATTEMPTS){break;}
-					}
-				}
-			});
-			if(finishedConstructionSitePlacement){continue;}
-			room.find(FIND_SOURCES).forEach((source: Source)=>
-			{
-				if(finishedConstructionSitePlacement){return;}
-				for(const location of generateSpiral(source.pos,9))
-				{
-					if(location.x===source.pos.x&&location.y===source.pos.y){continue;}
-					if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK)
-					{
-						log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.x},${location.y}`);
 						finishedConstructionSitePlacement = true;
+						log(LogLevel.INFO, "CONSTRUCT", `Planned new ${structureType} at ${location.x},${location.y}.`);
+						break;
 					}
+					else if(++attempts >= MAX_PLACEMENT_ATTEMPTS){break;}
 				}
-			});
-			if(finishedConstructionSitePlacement){continue;}
-			let attempts = 0;
-			for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildPlacementType.GRID_ROAD))
+			}
+		});
+		if(finishedConstructionSitePlacement || BuildingPlanner.planEnergySourcePerimeter(room)){return;}
+		let attempts = 0;
+		for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildPlacementType.GRID_ROAD))
+		{
+			if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK || ++attempts >= MAX_PLACEMENT_ATTEMPTS)
 			{
-				if(room.createConstructionSite(location, STRUCTURE_ROAD)===OK || ++attempts >= MAX_PLACEMENT_ATTEMPTS)
+				log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.x},${location.y}`);
+				finishedConstructionSitePlacement = true;
+				break;
+			}
+		}
+	}
+
+	static planEnergySourcePerimeter(room: Room): boolean
+	{
+		let finishedConstructionSitePlacement = false;
+		const terrain = room.getTerrain();
+		room.find(FIND_SOURCES).forEach((source: Source)=>
+		{
+			if(finishedConstructionSitePlacement){return;}
+			for(const location of generateSpiral(source.pos, 9))
+			{
+				if((location.x === source.pos.x && location.y === source.pos.y) || terrain.get(location.x, location.y) !== TERRAIN_MASK_WALL){continue;}
+				if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK)
 				{
 					log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.x},${location.y}`);
 					finishedConstructionSitePlacement = true;
-					break;
 				}
 			}
-		}
+		});
+		return finishedConstructionSitePlacement;
 	}
 
 	static findConstructionLocation = function*(roomName: string, type: BuildPlacementType): Generator<RoomPosition>
