@@ -1,4 +1,3 @@
-import {reduce} from "lodash";
 import {log, LogLevel} from "utils/misc";
 
 export const BUILD_TARGETS: BuildableStructureConstant[][] =
@@ -69,7 +68,7 @@ export default class BuildingPlanner
 				if(abortConstructionSitePlacement){return;}
 				const buildCountTarget = (buildTargetTalliesCumulative[structureType] || 0) + 1;
 				buildTargetTalliesCumulative[structureType] = buildCountTarget;
-				if(myBuiltStructureTallies[structureType] < buildCountTarget)
+				if((myBuiltStructureTallies[structureType] || 0) < buildCountTarget)
 				{
 					for(let i = 0; i < 10 && !abortConstructionSitePlacement; i++)
 					{
