@@ -93,7 +93,7 @@ export enum LogLevel
 	DANGER,
 }
 
-let logLevel: LogLevel = LogLevel.INFO;
+let logLevel: LogLevel = LogLevel.WALL;
 export function setLogLevel(level: LogLevel){logLevel = level;}
 
 const PREFIX_LENGTH = 12;
