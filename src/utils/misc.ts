@@ -53,7 +53,7 @@ export function isJobAssignable(ent: RoomObject)
 
 export function moveTo(
 	self: Creep,
-	target: RoomPosition | {pos: RoomPosition},
+	target: RoomPosition | _HasRoomPosition,
 	extraOpts?: any
 ): CreepMoveReturnCode | -2 | -5 | -7
 {
