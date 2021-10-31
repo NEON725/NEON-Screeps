@@ -213,6 +213,6 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			jobQueue.addJob(constructJob);
 		}
 
-	watcher(); /* eslint-disable-line */
+		watcher(); /* eslint-disable-line @typescript-eslint/no-unsafe-call */
 	});
 });

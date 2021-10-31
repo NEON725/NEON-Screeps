@@ -1,7 +1,7 @@
 import {log, LogLevel} from "utils/misc";
 
 export enum RoomAllocation
-{ /* eslint-disable-line */
+{ /* eslint-disable-line @typescript-eslint/indent */
 	NEUTRAL,
 	HOSTILE,
 	MILITARY,

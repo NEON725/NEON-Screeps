@@ -38,7 +38,7 @@ export const BUILD_TARGETS: BuildableStructureConstant[][] =
 ];
 
 enum BuildPlacementType
-{ /* eslint-disable-line */
+{ /* eslint-disable-line @typescript-eslint/indent */
 	RANDOM,
 	GRID,
 	GRID_ROAD,
