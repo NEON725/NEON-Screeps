@@ -43,8 +43,15 @@ export default class MuleRole extends CreepRole
 		else if(store.getFreeCapacity(RESOURCE_ENERGY) === 0 && memory.intent.harvesting)
 		{
 			memory.intent.harvesting = false;
-			memory.intent.target = null;
 			memory.intent.travelTarget = null;
+			const sites = creep.pos.findInRange(FIND_MY_CONSTRUCTION_SITES, 1);
+			if(sites.length > 0)
+			{
+				const site = sites[0];
+				memory.intent.target = site.id;
+				log(LogLevel.WALL, "MINING", `Carving perimeter: ${room.name}:${site.pos.x},${site.pos.y}`, creep);
+			}
+			else{memory.intent.target = null;}
 		}
 		if(job && memory.intent.harvesting){job.unassignJob(creep);}
 		if(memory.intent.target)
@@ -74,7 +81,15 @@ export default class MuleRole extends CreepRole
 						}
 					}
 				}
-				if(result === ERR_NOT_IN_RANGE){moveTo(creep, target);}
+				if(result === ERR_NOT_IN_RANGE)
+				{
+					result = moveTo(creep, target);
+					if(result === ERR_NO_PATH)
+					{
+						memory.intent.travelTarget = creep.pos;
+						memory.intent.target = null;
+					}
+				}
 				else if(result !== OK){memory.intent.target = null;}
 			}
 			else if(memory.intent.travelTarget && room.name !== memory.intent.travelTarget.roomName)
@@ -84,7 +99,7 @@ export default class MuleRole extends CreepRole
 			else
 			{
 				memory.intent.target = null;
-				log(LogLevel.WALL, "STORING", "Lost target.", creep);
+				log(LogLevel.WALL, "MINING", "Lost store target.", creep);
 			}
 		}
 		else if(memory.intent.travelTarget)
@@ -100,11 +115,15 @@ export default class MuleRole extends CreepRole
 			else if(memory.intent.harvesting)
 			{
 				const sources = creep.room.find(FIND_SOURCES_ACTIVE);
-				const source = sources[Math.floor(Math.random() * sources.length)];
+				const source = sources[_.random(sources.length - 1)];
 				if(source)
 				{
-					memory.intent.travelTarget = null;
-					memory.intent.target = source.id;
+					const result = creep.moveTo(source);
+					if(result !== ERR_NO_PATH)
+					{
+						memory.intent.travelTarget = null;
+						memory.intent.target = source.id;
+					}
 				}
 			}
 			else
