@@ -52,8 +52,8 @@ export default class CreepRosterMeta
 
 	getPositionAverage(room: Room | string): RoomPosition
 	{
-		const roomName = (("name" in (room as any)) ? (room as Room).name : room) as string;
-		const positionSum = this.positionSumByRoom[roomName];
+		const roomName = (typeof(room) === "string") ? (room as unknown as string) : (room as unknown as Room).name;
+		const positionSum = this.positionSumByRoom[roomName] || new RoomPosition(24, 24, roomName);
 		return new RoomPosition(Math.floor(positionSum.x / this.total), Math.floor(positionSum.y / this.total), roomName);
 	}
 }
