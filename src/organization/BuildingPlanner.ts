@@ -54,19 +54,22 @@ export default class BuildingPlanner
 			const mapIntel = Memory.rooms[roomName];
 			if(!mapIntel){continue;}
 			const room = Game.rooms[roomName];
+			const sites = room.find(FIND_MY_CONSTRUCTION_SITES);
+			const myMules = room.find(FIND_MY_CREEPS, {filter: (c: Creep)=>c.memory.role === "Mule"});
+			if(sites.length >= MAX_CONSTRUCTION_SITES){continue;}
 			switch(mapIntel.allocation)
 			{
 				case RoomAllocation.INDUSTRIAL:
-					BuildingPlanner.planIndustrialDistrict(room);
+					BuildingPlanner.planIndustrialDistrict(room, sites);
 					break;
 				case RoomAllocation.NEUTRAL:
-					BuildingPlanner.planEnergySourcePerimeter(room);
+					if(myMules.length >= 5){BuildingPlanner.planEnergySourcePerimeter(room);}
 					break;
 			}
 		}
 	}
 
-	static planIndustrialDistrict(room: Room): void
+	static planIndustrialDistrict(room: Room, sites: ConstructionSite[]): void
 	{
 		const controller = room?.controller;
 		if(!controller || !controller.my){return;}
@@ -78,17 +81,14 @@ export default class BuildingPlanner
 					prev.concat(next),
 				[] as BuildableStructureConstant[]
 			);
-		const constructionSites = room.find(
-			FIND_CONSTRUCTION_SITES,
-			{filter: (site: ConstructionSite)=>site.my}
-		);
-		if(constructionSites.length >= MAX_CONSTRUCTION_SITES){return;}
 		const myBuiltStructureTallies: {[key: string]: number} = {};
-		room.find(FIND_MY_STRUCTURES).forEach((structure: AnyOwnedStructure)=>
+		const tallyStructureFunc = (structure: {structureType: string})=>
 		{
 			myBuiltStructureTallies[structure.structureType]
-					= (myBuiltStructureTallies[structure.structureType] || 0) + 1;
-		});
+				= (myBuiltStructureTallies[structure.structureType] || 0) + 1;
+		};
+		room.find(FIND_MY_STRUCTURES).forEach(tallyStructureFunc);
+		sites.forEach(tallyStructureFunc);
 		let finishedConstructionSitePlacement = false;
 		const buildTargetTalliesCumulative: {[key: string]: number} = {};
 		currentBuildTargets.forEach((structureType: BuildableStructureConstant)=>
@@ -101,7 +101,8 @@ export default class BuildingPlanner
 				let attempts = 0;
 				for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildingPlanner.getPlacementTypeByStructure(structureType)))
 				{
-					if(room.createConstructionSite(location, structureType) === OK)
+					const result = room.createConstructionSite(location, structureType);
+					if(result === OK)
 					{
 						finishedConstructionSitePlacement = true;
 						log(LogLevel.INFO, "CONSTRUCT", `Planned new ${structureType} at ${location.x},${location.y}.`);
@@ -115,12 +116,13 @@ export default class BuildingPlanner
 		let attempts = 0;
 		for(const location of BuildingPlanner.findConstructionLocation(room.name, BuildPlacementType.GRID_ROAD))
 		{
-			if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK || ++attempts >= MAX_PLACEMENT_ATTEMPTS)
+			if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK)
 			{
-				log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.x},${location.y}`);
+				log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${room.name}:${location.x},${location.y}`);
 				finishedConstructionSitePlacement = true;
 				break;
 			}
+			if(++attempts >= MAX_PLACEMENT_ATTEMPTS){break;}
 		}
 	}
 
@@ -136,7 +138,7 @@ export default class BuildingPlanner
 				if((location.x === source.pos.x && location.y === source.pos.y) || terrain.get(location.x, location.y) !== TERRAIN_MASK_WALL){continue;}
 				if(room.createConstructionSite(location, STRUCTURE_ROAD) === OK)
 				{
-					log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.x},${location.y}`);
+					log(LogLevel.WALL, "CONSTRUCT", `Planned new road at ${location.roomName}:${location.x},${location.y}`);
 					finishedConstructionSitePlacement = true;
 				}
 			}
