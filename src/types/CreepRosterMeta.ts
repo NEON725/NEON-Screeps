@@ -10,22 +10,26 @@ const POPULATION_MAX = 50;
 export default class CreepRosterMeta
 {
 	total = 0;
-	totalsByName = new Map<string, number>();
+	totalsByName:{[key:string]: number}={};
+	totalsByRoom:{[key:string]: number}={};
 	private positionSumByRoom: {[key: string]: {x: number, y: number}} = {};
 
 	tallyCreep(creep: Creep): void
 	{
 		this.total++;
-		this.totalsByName.set(creep.memory.role, (this.totalsByName.get(creep.memory.role) || 0) + 1);
-		const positionSum = this.positionSumByRoom[creep.room.name] || {x: 0, y: 0};
+		this.totalsByName[creep.memory.role]=(this.totalsByName[creep.memory.role] || 0) + 1;
+		const roomName=creep.room.name;
+		const positionSum = this.positionSumByRoom[roomName] || {x: 0, y: 0};
 		positionSum.x += creep.pos.x;
 		positionSum.y += creep.pos.y;
-		this.positionSumByRoom[creep.room.name] = positionSum;
+		this.positionSumByRoom[roomName] = positionSum;
+		this.positionSumByRoom[roomName] = positionSum;
+		this.totalsByRoom[roomName]=(this.totalsByRoom[roomName]||0)+1
 	}
 
 	getTotal(role: string): number
 	{
-		return this.totalsByName.get(role) || 0;
+		return this.totalsByName[role] || 0;
 	}
 
 	generateSpawnJob(budget: number, spawners: number): JobBase | null
@@ -54,6 +58,7 @@ export default class CreepRosterMeta
 	{
 		const roomName = (typeof(room) === "string") ? (room as unknown as string) : (room as unknown as Room).name;
 		const positionSum = this.positionSumByRoom[roomName] || new RoomPosition(24, 24, roomName);
-		return new RoomPosition(Math.floor(positionSum.x / this.total), Math.floor(positionSum.y / this.total), roomName);
+		const roomTotal=this.totalsByRoom[roomName]||0;
+		return new RoomPosition(Math.floor(positionSum.x / roomTotal), Math.floor(positionSum.y /roomTotal), roomName);
 	}
 }
