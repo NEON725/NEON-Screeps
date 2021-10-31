@@ -131,9 +131,17 @@ log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
+	const cpu = Game.cpu;
+	log(LogLevel.WALL, "TICK", `TICK: ${Game.time} CPU:${cpu.bucket}`);
+	if(cpu.bucket < cpu.tickLimit)
+	{
+		Profiler.output();
+		log(LogLevel.DANGER, "CPU", `CPU throttling: ${cpu.bucket}/${cpu.tickLimit}(${cpu.limit})`);
+		return;
+	}
 	Profiler.wrap(()=>
 	{
-	/* eslint-enable @typescript-eslint/no-unsafe-call */
+		/* eslint-enable @typescript-eslint/no-unsafe-call */
 		const defaultRoom = Game.spawns.Spawn1.room;
 
 		const creepRosterMeta = new CreepRosterMeta();
