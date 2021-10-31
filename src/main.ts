@@ -10,6 +10,7 @@ import ConstructBuildingJob from "jobs/ConstructBuildingJob";
 import watcher from "screeps-multimeter/lib/watch-client";
 import MapIntel, {RoomIntel} from "organization/MapIntel";
 import BuildingPlanner from "organization/BuildingPlanner";
+import Profiler from "screeps-profiler/screeps-profiler";
 
 type BasicVoidFuncType = ()=> void;
 declare global
@@ -124,88 +125,94 @@ global.getStatusLine = function(): string
 	/* eslint-enable */
 }
 
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+Profiler.enable();
 log(LogLevel.EVENT, "SYSTEM", "INIT COMPLETE");
 
 export const loop = ErrorMapper.wrapLoop(() =>
 {
-	const defaultRoom = Game.spawns.Spawn1.room;
-
-	const creepRosterMeta = new CreepRosterMeta();
-	global.creepRosterMeta = creepRosterMeta;
-	jobQueue.run();
-	const fillableJobs = jobQueue.fillableJobs;
-	for(const name in Memory.creeps)
+	Profiler.wrap(()=>
 	{
-		if(!(name in Game.creeps))
-		{
-			const memory = Memory.creeps[name];
-			log(LogLevel.EVENT, "DEAD", "Creep died...", {name, memory} as JobAssignable);
-			delete Memory.creeps[name];
-			continue;
-		}
-	}
+	/* eslint-enable @typescript-eslint/no-unsafe-call */
+		const defaultRoom = Game.spawns.Spawn1.room;
 
-	for(const name in Game.creeps)
-	{
-		const creep = Game.creeps[name];
-		const memory = creep.memory;
-		const role = roleIndex.getRole(memory.role);
-		fillableJobs.filter((nextJob) => !jobQueue.attemptFillJob(creep, nextJob));
-		role.run(creep);
-		creepRosterMeta.tallyCreep(creep);
-	}
-
-	const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
-	if(spawnJob){jobQueue.addJob(spawnJob);}
-
-	for(const name in Game.structures)
-	{
-		const structure = Game.structures[name];
-		if(structure.my && isJobAssignable(structure))
+		const creepRosterMeta = new CreepRosterMeta();
+		global.creepRosterMeta = creepRosterMeta;
+		jobQueue.run();
+		const fillableJobs = jobQueue.fillableJobs;
+		for(const name in Memory.creeps)
 		{
-			const assignableStructure = (structure as unknown) as JobAssignable;
-			const role = roleIndex.getRole(assignableStructure);
-			fillableJobs.filter((nextJob) => !jobQueue.attemptFillJob(assignableStructure, nextJob));
-			role.run(structure);
-		}
-		switch(structure.structureType)
-		{
-			case STRUCTURE_SPAWN:
-			case STRUCTURE_TOWER:
-			case STRUCTURE_EXTENSION:
+			if(!(name in Game.creeps))
 			{
-				const spawn = structure as StructureWithStore;
-				if(spawn.my && ChargeStructureJob.isJobNeeded(spawn))
-				{
-					const fillJob = new ChargeStructureJob(spawn);
-					jobQueue.addJob(fillJob);
-				}
-				break;
+				const memory = Memory.creeps[name];
+				log(LogLevel.EVENT, "DEAD", "Creep died...", {name, memory} as JobAssignable);
+				delete Memory.creeps[name];
+				continue;
 			}
-			case STRUCTURE_CONTROLLER:
-			{
-				const controller = structure as StructureController;
-				if(controller.my && UpgradeControllerJob.isJobNeeded(controller))
-				{
-					const upgradeJob = new UpgradeControllerJob(controller);
-					jobQueue.addJob(upgradeJob);
-				}
-				break;
-			}
-			default:
-				break;
 		}
-	}
 
-	MapIntel.run();
-	BuildingPlanner.run();
+		for(const name in Game.creeps)
+		{
+			const creep = Game.creeps[name];
+			const memory = creep.memory;
+			const role = roleIndex.getRole(memory.role);
+			fillableJobs.filter((nextJob) => !jobQueue.attemptFillJob(creep, nextJob));
+			role.run(creep);
+			creepRosterMeta.tallyCreep(creep);
+		}
 
-	for(const name in Game.constructionSites)
-	{
-		const site = Game.constructionSites[name];
-		const constructJob = new ConstructBuildingJob(site);
-		jobQueue.addJob(constructJob);
-	}
+		const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
+		if(spawnJob){jobQueue.addJob(spawnJob);}
+
+		for(const name in Game.structures)
+		{
+			const structure = Game.structures[name];
+			if(structure.my && isJobAssignable(structure))
+			{
+				const assignableStructure = (structure as unknown) as JobAssignable;
+				const role = roleIndex.getRole(assignableStructure);
+				fillableJobs.filter((nextJob) => !jobQueue.attemptFillJob(assignableStructure, nextJob));
+				role.run(structure);
+			}
+			switch(structure.structureType)
+			{
+				case STRUCTURE_SPAWN:
+				case STRUCTURE_TOWER:
+				case STRUCTURE_EXTENSION:
+				{
+					const spawn = structure as StructureWithStore;
+					if(spawn.my && ChargeStructureJob.isJobNeeded(spawn))
+					{
+						const fillJob = new ChargeStructureJob(spawn);
+						jobQueue.addJob(fillJob);
+					}
+					break;
+				}
+				case STRUCTURE_CONTROLLER:
+				{
+					const controller = structure as StructureController;
+					if(controller.my && UpgradeControllerJob.isJobNeeded(controller))
+					{
+						const upgradeJob = new UpgradeControllerJob(controller);
+						jobQueue.addJob(upgradeJob);
+					}
+					break;
+				}
+				default:
+					break;
+			}
+		}
+
+		MapIntel.run();
+		BuildingPlanner.run();
+
+		for(const name in Game.constructionSites)
+		{
+			const site = Game.constructionSites[name];
+			const constructJob = new ConstructBuildingJob(site);
+			jobQueue.addJob(constructJob);
+		}
 
 	watcher(); /* eslint-disable-line */
+	});
 });

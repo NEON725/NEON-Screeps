@@ -68,6 +68,7 @@
 		"screeps-multimeter": "^2.0.4"
 	},
 	"dependencies": {
+		"screeps-profiler": "^2.0.1",
 		"source-map": "~0.6.1"
 	}
 }
