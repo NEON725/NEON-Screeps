@@ -141,3 +141,24 @@ export function isExit(pos: RoomPosition): boolean
 {
 	return pos.x === 0 || pos.x === 49 || pos.y === 0 || pos.y === 49;
 }
+
+export function* generateSpiral(origin: string | RoomPosition, maxSpots = 2500): Generator<RoomPosition, null>
+{
+	const centerPos = (typeof(origin) === "string") ? new RoomPosition(24, 24, origin) : (origin);
+	// I have no idea how this math works but the output seems correct so I turned it in to a generator function.
+	let x = 0; let y = 0; let dx = 0; let dy = -1;
+	for(let i = 0; i < maxSpots; i++)
+	{
+		try{yield new RoomPosition(x + centerPos.x, y + centerPos.y, centerPos.roomName);}
+		catch(e: any){return null;}
+		if(x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y))
+		{
+			const swap = -dy;
+			dy = dx;
+			dx = swap;
+		}
+		x += dx;
+		y += dy;
+	}
+	return null;
+}
