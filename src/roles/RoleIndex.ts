@@ -4,6 +4,7 @@ import StructureSpawnRole from "./StructureSpawnRole";
 import StructureControllerRole from "./StructureControllerRole";
 import MuleRole from "./MuleRole";
 import ScoutRole from "./ScoutRole";
+import StructureTowerRole from "./StructureTowerRole";
 
 export default class RoleIndex
 {
@@ -18,6 +19,7 @@ export default class RoleIndex
 			Scout: new ScoutRole(),
 			StructureSpawn: new StructureSpawnRole(),
 			StructureController: new StructureControllerRole(),
+			StructureTower: new StructureTowerRole(),
 		};
 		this.roleNames = Object.keys(this.roleData);
 	}

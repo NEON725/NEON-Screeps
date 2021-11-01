@@ -182,8 +182,14 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			}
 			switch(structure.structureType)
 			{
-				case STRUCTURE_SPAWN:
 				case STRUCTURE_TOWER:
+				{
+					const tower = structure as StructureTower;
+					const role = roleIndex.getRole("StructureTower");
+					role.run(tower);
+				}
+				/* eslint-disable-next-line no-fallthrough */
+				case STRUCTURE_SPAWN:
 				case STRUCTURE_EXTENSION:
 				{
 					const spawn = structure as StructureWithStore;
