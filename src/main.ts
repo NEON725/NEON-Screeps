@@ -138,6 +138,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 		log(LogLevel.DANGER, "CPU", `CPU throttling: ${cpu.bucket}/${cpu.tickLimit}(${cpu.limit})`);
 		return;
 	}
+	else if(cpu.bucket>=10000&&cpu.generatePixel&&cpu.generatePixel()===OK){log(LogLevel.INFO, "CPU", `Generated pixel.`);}
 	Profiler.wrap(()=>
 	{
 		const defaultRoom = Game.spawns.Spawn1.room;
@@ -167,7 +168,7 @@ export const loop = ErrorMapper.wrapLoop(() =>
 			creepRosterMeta.tallyCreep(creep);
 		}
 
-		const spawnJob = creepRosterMeta.generateSpawnJob(defaultRoom.energyCapacityAvailable, 1);
+		const spawnJob = creepRosterMeta.generateSpawnJob(300, 1);
 		if(spawnJob){jobQueue.addJob(spawnJob);}
 
 		for(const name in Game.structures)
